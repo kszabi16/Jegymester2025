@@ -1,0 +1,6 @@
+@JegymesterManager_HostAddress = http://localhost:5241
+
+GET {{JegymesterManager_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
