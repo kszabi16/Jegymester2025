@@ -16,7 +16,7 @@ namespace Jegymester.DataContext.Context
         DbSet<Ticket> Tickets { get; set; }
         DbSet<User> Users { get; set; }
         DbSet<Role> Roles { get; set; }
-        DbSet<Location> Locations { get; set; }
+        DbSet<Seat> Seats { get; set; }
         DbSet<Booking> Bookings { get; set; }
 
         public JegymesterDbContext(DbContextOptions<JegymesterDbContext> options) : base(options)

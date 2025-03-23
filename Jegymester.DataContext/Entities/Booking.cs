@@ -14,11 +14,6 @@ namespace Jegymester.DataContext.Entities
         //Kapcsolatok
         public User User { get; set; }
         public int UserId { get; set; }
-        public Ticket Ticket { get; set; }
-        public int TicketId { get; set; }
-
-
-
-
+        public List<Ticket> Tickets { get; set; }
     }
 }

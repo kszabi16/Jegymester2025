@@ -10,10 +10,10 @@ namespace Jegymester.DataContext.Entities
     public class Room : AbstractEntity
     {
         public string Name { get; set; }
-        public string Address { get; set; }
         public int Capacity { get; set; }
 
         //Kapcsolatok
-       public List<Screening> Screenings { get; set; }
+        public List<Screening> Screenings { get; set; }
+        public List<Seat> Seats { get; set; }
     }
 }

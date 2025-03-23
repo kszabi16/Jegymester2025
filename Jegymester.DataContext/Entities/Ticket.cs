@@ -9,13 +9,12 @@ namespace Jegymester.DataContext.Entities
     //Jegyek
     public class Ticket : AbstractEntity
     {
-        public int Row { get; set; }
-        public int Column { get; set; }
-        public int Price { get; set; }
+        public decimal Price { get; set; }
 
         //Kapcsolatok
-        public int MovieId { get; set; }
-        public Movie Movie { get; set; }
-       
+        public Screening Screenings { get; set; }
+        public int ScreeningId { get; set; }
+        public User Users { get; set; }
+        public int UserId { get; set; }
     }
 }

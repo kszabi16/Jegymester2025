@@ -11,11 +11,12 @@ namespace Jegymester.DataContext.Entities
     {
         public string Name { get; set; }
         public DateTime StartTime { get; set; }
-        public int TicketId { get; set; }
-        public Ticket Ticket { get; set; }
-       
 
-
-
+        //Kapcsolatok
+        public List<Ticket> Tickets { get; set; }
+        public int RoomId { get; set; }
+        public Room Room { get; set; }
+        public int MovieId { get; set; }
+        public Movie Movie { get; set; }
     }
 }
