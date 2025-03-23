@@ -15,8 +15,8 @@ namespace Jegymester.DataContext.Entities
         public string Director { get; set; }
         public string MovieType { get; set; }
         public int AgeLimit { get; set; }
-        public Screening Screening { get; set; }
-        public int ScreeningId { get; set; }
+
+        public List<Screening> Screenings { get; set; }
 
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Jegymester.DataContext.Entities
 {
     //Rendelések
-    public class Booking
+    public class Booking : AbstractEntity
     {
         public DateTime BuyDate { get; set; }
 

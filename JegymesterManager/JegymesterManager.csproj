@@ -16,4 +16,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Jegymester.DataContext\Jegymester.DataContext.csproj" />
+    <ProjectReference Include="..\Jegymester.Services\Jegymester.Services.csproj" />
+  </ItemGroup>
+
 </Project>

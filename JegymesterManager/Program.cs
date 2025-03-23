@@ -1,4 +1,4 @@
-using JegymesterManager.DataContext;
+using Jegymester.DataContext.Context;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<MovieDbContext>(options =>
+builder.Services.AddDbContext<JegymesterDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("JegymesterManagerContext")));
 
 var app = builder.Build();
