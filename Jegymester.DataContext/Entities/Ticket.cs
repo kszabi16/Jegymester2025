@@ -11,10 +11,19 @@ namespace Jegymester.DataContext.Entities
     {
         public decimal Price { get; set; }
 
+        public string TicketType { get; set; }
+
         //Kapcsolatok
         public Screening Screenings { get; set; }
         public int ScreeningId { get; set; }
+
         public User Users { get; set; }
         public int UserId { get; set; }
+
+        public Room Room { get; set; }
+        public int RoomId { get; set; }
+
+        public Seat Seat { get; set; }
+        public int SeatId { get; set; }
     }
 }

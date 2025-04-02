@@ -9,9 +9,7 @@ namespace Jegymester.DataContext.Entities
     //Moziterem
     public class Room : AbstractEntity
     {
-        public string Name { get; set; }
         public int Capacity { get; set; }
-
         //Kapcsolatok
         public List<Screening> Screenings { get; set; }
         public List<Seat> Seats { get; set; }
