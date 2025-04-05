@@ -1,5 +1,8 @@
+using Jegymester.DataContext;
 using Jegymester.DataContext.Context;
+using Jegymester.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +14,26 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<JegymesterDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("JegymesterManagerContext")));
 
+// Dependency Injection for services
+builder.Services.AddScoped<IMovieService, MovieService>();
+
+// AutoMapper Config
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+// Swagger configuration
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "JegymesterManager API", Version = "v1" });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JegymesterManager API v1"));
     app.MapOpenApi();
 }
 

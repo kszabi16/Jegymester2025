@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Jegymester.Services
 {
-    public interface IMovieInterface
+    public interface IMovieService
     {
         Task<IEnumerable<MovieDto>> GetAllMoviesAsync();
         Task<MovieDto> GetMovieByIdAsync(int id);
@@ -19,7 +19,7 @@ namespace Jegymester.Services
         Task<MovieDto> UpdateMovieAsync(int id, MovieUpdateDto movieDto);
         Task<bool> DeleteMovieAsync(int id);
     }
-    public class MovieService : IMovieInterface
+    public class MovieService : IMovieService
     {
         private readonly JegymesterDbContext _context;
         private readonly IMapper _mapper;
@@ -56,7 +56,7 @@ namespace Jegymester.Services
             var movie = await _context.Movies.FindAsync(id);
             if (movie == null)
             {
-                return null;
+                throw new KeyNotFoundException("Movie not found.");
             }
 
             _mapper.Map(movieDto, movie);
@@ -70,7 +70,7 @@ namespace Jegymester.Services
             var movie = await _context.Movies.FindAsync(id);
             if (movie == null)
             {
-                return false;
+                throw new KeyNotFoundException("Movie not found.");
             }
 
             _context.Movies.Remove(movie);
