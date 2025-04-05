@@ -11,7 +11,6 @@ namespace Jegymester.DataContext.Dtos
     {
 
         public int Id { get; set; }
-        public bool Deleted { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime ReleaseDate { get; set; }
@@ -25,14 +24,12 @@ namespace Jegymester.DataContext.Dtos
     public class MovieCreateDto
     {
         [Required]
-        [StringLength(100)]
         public string Title { get; set; }
 
         [Required]
         public string Description { get; set; }
 
         [Required]
-        [Range(1, 300)]
         public int Length { get; set; }
 
         [Required]
@@ -51,14 +48,12 @@ namespace Jegymester.DataContext.Dtos
     public class MovieUpdateDto 
     {
         [Required]
-        [StringLength(100)]
         public string Title { get; set; }
 
         [Required]
         public string Description { get; set; }
 
         [Required]
-        [Range(1, 300)]
         public int Length { get; set; }
 
         [Required]

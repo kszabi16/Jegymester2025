@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jegymester.DataContext.Entities
 {
     //Ülések
-    public class Seat
+    public class Seat : AbstractEntity
     {
         public int Row { get; set; }
         public int Column { get; set; }

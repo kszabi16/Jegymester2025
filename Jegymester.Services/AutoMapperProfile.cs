@@ -10,8 +10,9 @@ namespace Jegymester.DataContext
         {
             // Entity to DTO mappings
             CreateMap<Movie, MovieDto>().ReverseMap();
-            CreateMap<Movie, MovieCreateDto>().ReverseMap();
-            CreateMap<Movie, MovieUpdateDto>().ReverseMap();
+            CreateMap<MovieCreateDto, Movie>();
+            CreateMap<MovieUpdateDto, Movie>();
+
             CreateMap<Role, RoleDto>().ReverseMap();
             CreateMap<Role, UpdateUserRolesDto>().ReverseMap();
             CreateMap<Screening, ScreeningDto>().ReverseMap();
