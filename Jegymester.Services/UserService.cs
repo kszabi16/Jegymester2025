@@ -36,46 +36,32 @@ namespace Jegymester.Services
         public async Task<UserDto> RegisterAsync(RegisterUserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
-
+            user.Name = userDto.Name;
+                
             List<Role> rolesToAssign = new List<Role>();
 
-            // Ellenőrizzük, hogy van-e megadott RoleId és tartalmaz-e valid szerepköröket
             if (userDto.RoleIds != null && userDto.RoleIds.Any())
             {
-                foreach (var roleId in userDto.RoleIds)
-                {
-                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
-                    if (existingRole != null)
-                    {
-                        rolesToAssign.Add(existingRole);  // Ha valid szerepkör, hozzáadjuk
-                    }
-                    else
-                    {
-                        // Ha valamelyik szerepkör nem létezik, dobunk egy hibát
-                        throw new KeyNotFoundException($"Role with ID {roleId} not found.");
-                    }
-                }
-            }
+                rolesToAssign = await _context.Roles
+                    .Where(r => userDto.RoleIds.Contains(r.Id))
+                    .ToListAsync();
 
-            // Ha nem adtak meg szerepköröket, akkor alapértelmezett szerepkört rendelünk hozzá
-            if (!rolesToAssign.Any())
+                if (rolesToAssign.Count != userDto.RoleIds.Count)
+                    throw new KeyNotFoundException("One or more roles not found.");
+            }
+            else
             {
                 rolesToAssign.Add(await GetDefaultCustomerRoleAsync());
             }
 
-            // Hozzárendeljük a szerepköröket a felhasználóhoz
             user.Roles = rolesToAssign;
 
-            // Mivel új felhasználóról van szó, használjuk az AddAsync-t
             await _context.Users.AddAsync(user);
-
-            // Frissítjük a RoleId mezőt is, ha szükséges
-            user.RoleId = rolesToAssign.First().Id;
-
             await _context.SaveChangesAsync();
 
             return _mapper.Map<UserDto>(user);
         }
+
 
 
 
@@ -99,8 +85,6 @@ namespace Jegymester.Services
             {
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
-
-            //return _jwtService.GenerateToken(user);
             return user.Name;
         }
 
@@ -108,36 +92,29 @@ namespace Jegymester.Services
         {
             var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
-            {
                 throw new KeyNotFoundException("User not found.");
-            }
 
-            _mapper.Map(userDto, user);
+            user.Name = userDto.Name;
+            user.Email = userDto.Email;
+            user.PhoneNumber = userDto.PhoneNumber;
 
-            // Ha új szerepkörök vannak, akkor frissítjük a szerepköröket
             if (userDto.RoleIds != null && userDto.RoleIds.Any())
             {
-                user.Roles.Clear();  // Kiürítjük a régi szerepköröket
+                var roles = await _context.Roles
+                    .Where(r => userDto.RoleIds.Contains(r.Id))
+                    .ToListAsync();
 
-                foreach (var roleId in userDto.RoleIds)
-                {
-                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
-                    if (existingRole != null)
-                    {
-                        user.Roles.Add(existingRole);  // Hozzáadjuk a valid szerepköröket
-                    }
-                    else
-                    {
-                        throw new KeyNotFoundException($"Role with ID {roleId} not found.");
-                    }
-                }
+                if (roles.Count != userDto.RoleIds.Count)
+                    throw new KeyNotFoundException("One or more roles not found.");
+
+                user.Roles = roles;
             }
 
-            _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<UserDto>(user);
         }
+
 
 
 

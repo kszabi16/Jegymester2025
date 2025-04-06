@@ -69,7 +69,6 @@ namespace Jegymester.Services
             var screeningResult = new ScreeningDto
             {
                 Id = screening.Id,
-                Deleted = false,
                 MovieId = screening.MovieId,
                 Title = screening.Name,
                 StartTime = screening.StartTime,

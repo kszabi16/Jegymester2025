@@ -30,15 +30,8 @@ namespace Jegymester.DataContext
 
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<RegisterUserDto, User>();
-            CreateMap<UserUpdateDto, User>();
-            CreateMap<RegisterUserDto, User>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Username));
-            
-
-
-
-
-
+            CreateMap<UserUpdateDto, User>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
         }
     }
 }
