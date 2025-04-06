@@ -23,14 +23,14 @@ namespace JegymesterManager.Controllers
             _movieService = movieService;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllMovie")]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
             var movies = await _movieService.GetAllMoviesAsync();
             return Ok(movies);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetById")]
         public async Task<ActionResult<Movie>> GetMovie(int id)
         {
             var movie = await _movieService.GetMovieByIdAsync(id);
@@ -41,14 +41,14 @@ namespace JegymesterManager.Controllers
             return Ok(movie);
         }
 
-        [HttpPost]
+        [HttpPost("CreateMovie")]
         public async Task<ActionResult<Movie>> CreateMovie(MovieCreateDto movieDto)
         {
             var createdMovie = await _movieService.CreateMovieAsync(movieDto);
             return CreatedAtAction(nameof(GetMovie), new { id = createdMovie.Id }, createdMovie);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateMovie")]
         public async Task<IActionResult> UpdateMovie(int id, MovieUpdateDto movieDto)
         {
 
@@ -61,7 +61,7 @@ namespace JegymesterManager.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteMovie")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
             var movie = await _movieService.GetMovieByIdAsync(id);
