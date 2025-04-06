@@ -16,6 +16,7 @@ builder.Services.AddDbContext<JegymesterDbContext>(options =>
 
 // Dependency Injection for services
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // AutoMapper Config
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

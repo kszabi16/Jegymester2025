@@ -13,20 +13,32 @@ namespace Jegymester.DataContext
             CreateMap<MovieCreateDto, Movie>();
             CreateMap<MovieUpdateDto, Movie>();
 
-            CreateMap<Role, RoleDto>().ReverseMap();
+            CreateMap<Role, RoleDto>();
             CreateMap<Role, UpdateUserRolesDto>().ReverseMap();
+
             CreateMap<Screening, ScreeningDto>().ReverseMap();
             CreateMap<Screening, ScreeningCreateDto>().ReverseMap();
             CreateMap<Screening, ScreeningUpdateDto>().ReverseMap();
+
             CreateMap<Seat, SeatDto>().ReverseMap();
+
             CreateMap<Ticket, TicketDto>().ReverseMap();
             CreateMap<Ticket, UserTicketPurchaseDto>().ReverseMap();
             CreateMap<Ticket, GuestTicketPurchaseDto>().ReverseMap();
             CreateMap<Ticket, CashierTicketPurchaseDto>().ReverseMap();
             CreateMap<Ticket, ValidateTicketDto>().ReverseMap();
-            CreateMap<User, RegisterUserDto>().ReverseMap();
-            CreateMap<User, UserLoginDto>().ReverseMap();
-            CreateMap<User, UserUpdateDto>().ReverseMap();
+
+            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<RegisterUserDto, User>();
+            CreateMap<UserUpdateDto, User>();
+            CreateMap<RegisterUserDto, User>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Username));
+            
+
+
+
+
+
         }
     }
 }

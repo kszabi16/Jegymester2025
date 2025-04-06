@@ -10,7 +10,6 @@ namespace Jegymester.DataContext.Dtos
     public class ScreeningDto
     {
         public int Id { get; set; }
-        public bool Deleted { get; set; }
         public int MovieId { get; set; }
         public string Title { get; set; }
         public DateTime StartTime { get; set; }

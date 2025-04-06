@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -13,17 +14,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jegymester.Services
     {
-        public interface IUserService
-        {
-            Task<UserDto> RegisterAsync(RegisterUserDto userDto);
-            Task<UserDto> LoginAsync(UserLoginDto loginDto);
-            Task<IEnumerable<MovieDto>> GetAvailableMoviesAsync();
-            Task<IEnumerable<ScreeningDto>> GetAvailableScreeningsAsync();
-            Task<TicketDto> PurchaseTicketAsync(int screeningId, int seatId, string userId);
-            Task<bool> CancelTicketAsync(int ticketId, string userId);
-            Task<UserDto> UpdateUserDataAsync(string userId, UserUpdateDto updateDto);
-            Task<IEnumerable<TicketDto>> GetUserTicketsAsync(string userId);
-        }
+    public interface IUserService
+    {
+        Task<UserDto> RegisterAsync(RegisterUserDto userDto);
+        Task<string> LoginAsync(UserLoginDto userDto);
+        Task<UserDto> UpdateProfileAsync(int userId, UserUpdateDto userDto);
+        Task<IList<RoleDto>> GetRolesAsync();
+    }
 
     public class UserService : IUserService
     {
@@ -35,44 +32,120 @@ namespace Jegymester.Services
             _mapper = mapper;
             _context = context;
         }
-        public Task<bool> CancelTicketAsync(int ticketId, string userId)
+
+        public async Task<UserDto> RegisterAsync(RegisterUserDto userDto)
         {
-            throw new NotImplementedException();
+            var user = _mapper.Map<User>(userDto);
+
+            List<Role> rolesToAssign = new List<Role>();
+
+            // Ellenőrizzük, hogy van-e megadott RoleId és tartalmaz-e valid szerepköröket
+            if (userDto.RoleIds != null && userDto.RoleIds.Any())
+            {
+                foreach (var roleId in userDto.RoleIds)
+                {
+                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
+                    if (existingRole != null)
+                    {
+                        rolesToAssign.Add(existingRole);  // Ha valid szerepkör, hozzáadjuk
+                    }
+                    else
+                    {
+                        // Ha valamelyik szerepkör nem létezik, dobunk egy hibát
+                        throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+                    }
+                }
+            }
+
+            // Ha nem adtak meg szerepköröket, akkor alapértelmezett szerepkört rendelünk hozzá
+            if (!rolesToAssign.Any())
+            {
+                rolesToAssign.Add(await GetDefaultCustomerRoleAsync());
+            }
+
+            // Hozzárendeljük a szerepköröket a felhasználóhoz
+            user.Roles = rolesToAssign;
+
+            // Mivel új felhasználóról van szó, használjuk az AddAsync-t
+            await _context.Users.AddAsync(user);
+
+            // Frissítjük a RoleId mezőt is, ha szükséges
+            user.RoleId = rolesToAssign.First().Id;
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<UserDto>(user);
         }
 
-        public Task<IEnumerable<MovieDto>> GetAvailableMoviesAsync()
+
+
+
+        private async Task<Role> GetDefaultCustomerRoleAsync()
         {
-            throw new NotImplementedException();
+            var customerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
+            if (customerRole == null)
+            {
+                customerRole = new Role { Name = "Customer" };
+                await _context.Roles.AddAsync(customerRole);
+                await _context.SaveChangesAsync();
+            }
+            return customerRole;
         }
 
-        public Task<IEnumerable<ScreeningDto>> GetAvailableScreeningsAsync()
+        public async Task<string> LoginAsync(UserLoginDto userDto)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userDto.Email);
+            if (user == null /*|| !BCrypt.Net.BCrypt.Verify(userDto.Password, user.PasswordHash)*/)
+            {
+                throw new UnauthorizedAccessException("Invalid credentials.");
+            }
+
+            //return _jwtService.GenerateToken(user);
+            return user.Name;
         }
 
-        public Task<IEnumerable<TicketDto>> GetUserTicketsAsync(string userId)
+        public async Task<UserDto> UpdateProfileAsync(int userId, UserUpdateDto userDto)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            _mapper.Map(userDto, user);
+
+            // Ha új szerepkörök vannak, akkor frissítjük a szerepköröket
+            if (userDto.RoleIds != null && userDto.RoleIds.Any())
+            {
+                user.Roles.Clear();  // Kiürítjük a régi szerepköröket
+
+                foreach (var roleId in userDto.RoleIds)
+                {
+                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
+                    if (existingRole != null)
+                    {
+                        user.Roles.Add(existingRole);  // Hozzáadjuk a valid szerepköröket
+                    }
+                    else
+                    {
+                        throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+                    }
+                }
+            }
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<UserDto>(user);
         }
 
-        public Task<UserDto> LoginAsync(UserLoginDto loginDto)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<TicketDto> PurchaseTicketAsync(int screeningId, int seatId, string userId)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<UserDto> RegisterAsync(RegisterUserDto userDto)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<UserDto> UpdateUserDataAsync(string userId, UserUpdateDto updateDto)
+        public async Task<IList<RoleDto>> GetRolesAsync()
         {
-            throw new NotImplementedException();
+            var roles = await _context.Roles.ToListAsync();
+            return _mapper.Map<IList<RoleDto>>(roles);
         }
     }
 }

@@ -50,7 +50,14 @@ namespace Jegymester.DataContext.Context
                 .WithMany()
                 .HasForeignKey(t => t.SeatId)
                 .OnDelete(DeleteBehavior.Restrict);
+        {
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Users)
+                .UsingEntity(j => j.ToTable("UserRoles")); // köztes tábla automatikusan
         }
 
     }
+
+}
 }

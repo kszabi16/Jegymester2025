@@ -15,7 +15,7 @@ namespace Jegymester.DataContext.Entities
 
         //Kapcsolatok
         public List<Booking> Bookings { get; set; }
+        public List<Role> Roles { get; set; }
         public int RoleId { get; set; }
-        public Role Roles { get; set; }
     }
 }

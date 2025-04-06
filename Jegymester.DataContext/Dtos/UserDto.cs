@@ -11,10 +11,9 @@ namespace Jegymester.DataContext.Dtos
   public  class UserDto 
     {
         public int Id { get; set; }
-        public bool Deleted { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-        public string Phonenumer { get; set; }
+        public string PhoneNumber { get; set; }
         public IList<RoleDto> Roles { get; set; }
     }
 
