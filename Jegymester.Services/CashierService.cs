@@ -2,6 +2,7 @@
 using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Dtos;
 using Jegymester.DataContext.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jegymester.Services
 {
@@ -22,19 +23,89 @@ namespace Jegymester.Services
             _mapper = mapper;
             _context = context;
         }
-        public Task<TicketDto> PurchaseTicketForGuestAsync(int screeningId, int seatId, GuestTicketPurchaseDto guestDto)
+        public async Task<TicketDto> PurchaseTicketForGuestAsync(int screeningId, int seatId, GuestTicketPurchaseDto guestDto)
         {
-            throw new NotImplementedException();
+            var screening = await _context.Screenings.FindAsync(screeningId);
+            if (screening == null)
+                return null;
+
+            
+            bool seatTaken = await _context.Tickets
+                .AnyAsync(t => t.ScreeningId == screeningId && t.SeatId == seatId);
+            if (seatTaken)
+                return null;
+
+            
+            var ticket = new Ticket
+            {
+                ScreeningId = screeningId,
+                SeatId = seatId,
+                TicketType = "Guest",
+                Price = 3000,
+                RoomId = screening.RoomId,
+                
+            };
+
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<TicketDto>(ticket);
         }
 
-        public Task<TicketDto> PurchaseTicketForUserAsync(int screeningId, int seatId, string userId)
+
+        public async Task<TicketDto> PurchaseTicketForUserAsync(int screeningId, int seatId, string userId)
         {
-            throw new NotImplementedException();
+            
+            var screening = await _context.Screenings.FindAsync(screeningId);
+            if (screening == null)
+                return null;
+
+            
+            if (!int.TryParse(userId, out int parsedUserId))
+                return null;
+
+            var user = await _context.Users.FindAsync(parsedUserId);
+            if (user == null)
+                return null;
+
+            
+            bool seatTaken = await _context.Tickets
+                .AnyAsync(t => t.ScreeningId == screeningId && t.SeatId == seatId);
+            if (seatTaken)
+                return null;
+
+            
+            var ticket = new Ticket
+            {
+                ScreeningId = screeningId,
+                SeatId = seatId,
+                UserId = parsedUserId,
+                TicketType = "Standard",
+                Price = 3000, 
+                RoomId = screening.RoomId
+            };
+
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<TicketDto>(ticket);
         }
 
-        public Task<bool> ValidateTicketAsync(int ticketId)
+
+        public async Task<bool> ValidateTicketAsync(int ticketId)
         {
-            throw new NotImplementedException();
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            if (ticket == null)
+                return false;
+
+            
+
+            
+            _context.Tickets.Update(ticket);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
+
     }
 }
