@@ -21,6 +21,7 @@ namespace JegymesterManager.Controllers
         public TicketsController(ITicketService ticketService)
         {
             _ticketService = ticketService;
+
         }
 
         [HttpGet]
@@ -28,6 +29,7 @@ namespace JegymesterManager.Controllers
         {
             var tickets = await _ticketService.GetAllAsync();
             return Ok(tickets);
+
         }
 
         [HttpGet("{id}")]
@@ -64,7 +66,40 @@ namespace JegymesterManager.Controllers
             if (!success)
                 return NotFound();
 
+        
+        [HttpPut("CreateTicket")]
+        public async Task<ActionResult<Ticket>> CreateTicket(TicketDto ticketDto)
+        {
+            var createdTicket = await _ticketService.CreateAsync(ticketDto);
+            return CreatedAtAction(nameof(GetTicket), new { id = createdTicket.Id }, createdTicket);
+        }
+
+        
+        [HttpPost("UpdateTicket")]
+        public async Task<ActionResult<Ticket>> PostTicket(int id,TicketDto ticket)
+        {
+            var updatedTicket = await _ticketService.UpdateAsync(id, ticket);
+            if (updatedTicket == null)
+            {
+                return NotFound();
+            }
+
             return NoContent();
+        }
+
+       
+        [HttpDelete("DeleteTicket")]
+        public async Task<IActionResult> DeleteTicket(int id)
+        {
+            var movie = await _ticketService.DeleteAsync(id);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            await _ticketService.DeleteAsync(id);
+            return NoContent();
+
         }
     }
 

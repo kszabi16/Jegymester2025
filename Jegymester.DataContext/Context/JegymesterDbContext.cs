@@ -45,10 +45,7 @@ namespace Jegymester.DataContext.Context
                 .HasForeignKey(t => t.SeatId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //modelBuilder.Entity<User>()
-            //    .HasMany(u => u.Roles)
-            //    .WithMany(r => r.Users)
-            //    .UsingEntity(j => j.ToTable("UserRoles"));
+
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Seat)
@@ -56,6 +53,11 @@ namespace Jegymester.DataContext.Context
                 .HasForeignKey(t => t.SeatId)
                 .OnDelete(DeleteBehavior.Restrict); 
 
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Users)
+                .UsingEntity(j => j.ToTable("UserRoles"));
         }
     }
 }

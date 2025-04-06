@@ -20,6 +20,8 @@ namespace Jegymester.DataContext.Dtos
         public DateTime PurchaseDate { get; set; }
     }
 
+
+    
     public class CashierTicketPurchaseDto
     {
         [Required]

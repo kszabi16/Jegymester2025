@@ -10,6 +10,7 @@ namespace Jegymester.DataContext.Entities
     public class Screening : AbstractEntity
     {
         public DateTime StartTime { get; set; }
+
         public string Name { get; set; } 
         public int RoomId { get; set; }
         public Room Room { get; set; }
