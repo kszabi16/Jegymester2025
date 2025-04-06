@@ -28,14 +28,8 @@ namespace Jegymester.DataContext.Context
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Room)
-                .WithMany()
-                .HasForeignKey(t => t.RoomId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Screenings)
-                .WithMany()
+                .WithMany(s => s.Tickets)
                 .HasForeignKey(t => t.ScreeningId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -50,14 +44,12 @@ namespace Jegymester.DataContext.Context
                 .WithMany()
                 .HasForeignKey(t => t.SeatId)
                 .OnDelete(DeleteBehavior.Restrict);
-        {
+
+            // User - Role many-to-many kapcsolat (EF Core automatikusan kezeli)
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
-                .UsingEntity(j => j.ToTable("UserRoles")); // köztes tábla automatikusan
+                .UsingEntity(j => j.ToTable("UserRoles"));
         }
-
     }
-
-}
 }
