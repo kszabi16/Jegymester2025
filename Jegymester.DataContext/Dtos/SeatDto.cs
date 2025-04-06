@@ -17,6 +17,8 @@ namespace Jegymester.DataContext.Dtos
 
         [Required]
         public string TicketType { get; set; }
+        [Required]
+        public bool IsOccupied { get; set; } = false;
 
     }
 }

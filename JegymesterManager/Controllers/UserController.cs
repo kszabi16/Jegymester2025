@@ -23,28 +23,28 @@ namespace JegymesterManager.Controllers
             _userService = userService;
         }
 
-        [HttpPost("register")]
+        [HttpPost("RegisterUser")]
         public async Task<IActionResult> Register(RegisterUserDto userDto)
         {
             var result = await _userService.RegisterAsync(userDto);
             return Ok(result);
         }
 
-        [HttpPost("login")]
+        [HttpPost("LoginUser")]
         public async Task<IActionResult> Login(UserLoginDto userDto)
         {
             var token = await _userService.LoginAsync(userDto);
             return Ok(new { Token = token });
         }
 
-        [HttpPut("update-profile/{userId}")]
+        [HttpPut("UpdateProfile")]
         public async Task<IActionResult> UpdateProfile(int userId, UserUpdateDto userDto)
         {
             var result = await _userService.UpdateProfileAsync(userId, userDto);
             return Ok(result);
         }
 
-        [HttpGet("roles")]
+        [HttpGet("Roles")]
         public async Task<IActionResult> GetRoles()
         {
             var result = await _userService.GetRolesAsync();
