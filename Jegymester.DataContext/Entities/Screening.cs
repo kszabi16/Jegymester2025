@@ -15,7 +15,10 @@ namespace Jegymester.DataContext.Entities
         //Kapcsolatok
         
                 
+      public List<Ticket> Tickets { get; set; }
        
+
+        
 
     }
 }
