@@ -78,6 +78,7 @@ namespace Jegymester.Services
                 ScreeningId = screeningId,
                 SeatId = seatId,
                 TicketType = "Guest",
+                Price = 2500,
             };
 
             seat.IsOccupied = true;

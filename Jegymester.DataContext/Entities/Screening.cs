@@ -9,14 +9,17 @@ namespace Jegymester.DataContext.Entities
     //Vetítések
     public class Screening : AbstractEntity
     {
-        public string Name { get; set; }
+        
         public DateTime StartTime { get; set; }
 
         //Kapcsolatok
-        public List<Ticket> Tickets { get; set; }
-        public int RoomId { get; set; }
+        
+        public List<Ticket> Tickets { get; set; } 
+        
         public Room Room { get; set; }
-        public int MovieId { get; set; }
+        public int RoomId { get; set; }
         public Movie Movie { get; set; }
+        public int MovieId { get; set; }
+
     }
 }

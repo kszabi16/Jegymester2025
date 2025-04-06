@@ -14,7 +14,11 @@ namespace Jegymester.DataContext.Entities
         public int Row { get; set; }
         public int Column { get; set; }
         public int RoomId { get; set; }
-        public Room Room { get; set; }
-        public bool IsOccupied { get; set; } = false;
+
+        public bool IsOccupied { get; set; }
+        public Room Rooms { get; set; }
+       
+
+       
     }
 }

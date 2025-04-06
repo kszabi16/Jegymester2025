@@ -27,11 +27,11 @@ namespace Jegymester.DataContext.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Screenings)
-                .WithMany(s => s.Tickets)
-                .HasForeignKey(t => t.ScreeningId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<Ticket>()
+            //    .HasOne(t => t.Screenings)
+            //    .WithMany(s => s.Tickets)
+            //    .HasForeignKey(t => t.ScreeningId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Users)

@@ -19,5 +19,6 @@ namespace Jegymester.DataContext.Entities
 
         //Kapcsolatok
         public List<Screening> Screenings { get; set; }
+
     }
 }
