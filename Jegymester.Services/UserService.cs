@@ -147,5 +147,6 @@ namespace Jegymester.Services
             var roles = await _context.Roles.ToListAsync();
             return _mapper.Map<IList<RoleDto>>(roles);
         }
+
     }
 }
