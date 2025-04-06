@@ -8,8 +8,8 @@ namespace Jegymester.Services
 {
     public interface ICashierService
     {
-        Task<TicketDto> PurchaseTicketForUserAsync(int screeningId, int seatId, int userId);
-        Task<TicketDto> PurchaseTicketForGuestAsync(int screeningId, int seatId, GuestTicketPurchaseDto guestDto);
+       
+        Task<TicketDto> PurchaseTicketForGuestAsync(int seatId,CashierTicketPurchaseDto guestDto, string ticketType, decimal price);
         Task<bool> ValidateTicketAsync(int ticketId);
     }
 
@@ -24,44 +24,13 @@ namespace Jegymester.Services
             _context = context;
         }
 
-        public async Task<TicketDto> PurchaseTicketForUserAsync(int screeningId, int seatId, int userId)
+        public async Task<TicketDto> PurchaseTicketForGuestAsync(int seatId, CashierTicketPurchaseDto guestDto,string ticketType,decimal price)
         {
-            
-            var screening = await _context.Screenings.FindAsync(screeningId);
-            if (screening == null)
-                throw new ArgumentException("Screening not found.");
+           
 
             var seat = await _context.Seats.FindAsync(seatId);
             if (seat == null || seat.IsOccupied)
                 throw new InvalidOperationException("Seat is not available.");
-
-            var ticket = new Ticket
-            {
-                ScreeningId = screeningId,
-                SeatId = seatId,
-                UserId = userId,
-                TicketType = "User",
-                Price = 2500,
-            };
-
-            seat.IsOccupied = true;
-
-            _context.Tickets.Add(ticket);
-            await _context.SaveChangesAsync();
-
-            return _mapper.Map<TicketDto>(ticket);
-        }
-
-        public async Task<TicketDto> PurchaseTicketForGuestAsync(int screeningId, int seatId, GuestTicketPurchaseDto guestDto)
-        {
-            var screening = await _context.Screenings.FindAsync(screeningId);
-            if (screening == null)
-                throw new ArgumentException("Screening not found.");
-
-            var seat = await _context.Seats.FindAsync(seatId);
-            if (seat == null || seat.IsOccupied)
-                throw new InvalidOperationException("Seat is not available.");
-
 
 
             var guest = new User
@@ -75,10 +44,10 @@ namespace Jegymester.Services
 
             var ticket = new Ticket
             {
-                ScreeningId = screeningId,
+               
                 SeatId = seatId,
-                TicketType = "Guest",
-                Price = 2500,
+                TicketType = ticketType,
+                Price = price,
             };
 
             seat.IsOccupied = true;

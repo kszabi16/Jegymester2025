@@ -14,12 +14,8 @@ namespace Jegymester.DataContext.Entities
 
         //Kapcsolatok
         
-        public List<Ticket> Tickets { get; set; } 
-        
-        public Room Room { get; set; }
-        public int RoomId { get; set; }
-        public Movie Movie { get; set; }
-        public int MovieId { get; set; }
+                
+       
 
     }
 }

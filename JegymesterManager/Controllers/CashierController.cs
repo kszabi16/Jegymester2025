@@ -15,33 +15,17 @@ namespace Jegymester.Controllers
             _cashierService = cashierService;
         }
 
-        [HttpPost("PurchaseUser")]
-        public async Task<IActionResult> PurchaseTicketForUser([FromQuery] int screeningId, [FromQuery] int seatId, [FromQuery] int userId)
-        {
-            try
-            {
-                var ticket = await _cashierService.PurchaseTicketForUserAsync(screeningId, seatId, userId);
-                return Ok(ticket);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+       
 
-        [HttpPost("PurchasGuest")]
-        public async Task<IActionResult> PurchaseTicketForGuest([FromQuery] int screeningId, [FromQuery] int seatId, [FromBody] GuestTicketPurchaseDto guestDto)
+        [HttpPost("PurchaseGuest")]
+        public async Task<IActionResult> PurchaseTicketForGuest( int seatId, CashierTicketPurchaseDto guestDto, string ticketType, decimal price)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var ticket = await _cashierService.PurchaseTicketForGuestAsync(screeningId, seatId, guestDto);
+                var ticket = await _cashierService.PurchaseTicketForGuestAsync(seatId,guestDto,ticketType,price);
                 return Ok(ticket);
             }
             catch (ArgumentException ex)

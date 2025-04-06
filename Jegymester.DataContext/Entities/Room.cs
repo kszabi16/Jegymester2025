@@ -12,6 +12,6 @@ namespace Jegymester.DataContext.Entities
         public int Capacity { get; set; }
         //Kapcsolatok
         public List<Screening> Screenings { get; set; }
-        public List<Seat> Seats { get; set; }
+       
     }
 }

@@ -23,8 +23,8 @@ namespace Jegymester.DataContext
             CreateMap<Seat, SeatDto>().ReverseMap();
 
             CreateMap<Ticket, TicketDto>().ReverseMap();
-            CreateMap<Ticket, UserTicketPurchaseDto>().ReverseMap();
-            CreateMap<Ticket, GuestTicketPurchaseDto>().ReverseMap();
+            
+            
             CreateMap<Ticket, CashierTicketPurchaseDto>().ReverseMap();
             CreateMap<Ticket, ValidateTicketDto>().ReverseMap();
 

@@ -20,36 +20,6 @@ namespace Jegymester.DataContext.Dtos
         public DateTime PurchaseDate { get; set; }
     }
 
-    public class UserTicketPurchaseDto
-    {
-        [Required]
-        public int ScreeningId { get; set; }
-
-        [Required]
-        [Range(1, 10)]
-        public int TicketCount { get; set; }
-
-        public List<SeatDto> SelectedSeats { get; set; }
-    }
-    public class GuestTicketPurchaseDto
-    {
-        [Required]
-        public int ScreeningId { get; set; }
-
-        [Required]
-        [Range(1, 10)]
-        public int TicketCount { get; set; }
-
-        [Required]
-        [EmailAddress]
-        public string CustomerEmail { get; set; }
-
-        [Required]
-        [Phone]
-        public string CustomerPhone { get; set; }
-
-        public List<SeatDto> SelectedSeats { get; set; }
-    }
     public class CashierTicketPurchaseDto
     {
         [Required]
@@ -67,10 +37,6 @@ namespace Jegymester.DataContext.Dtos
         [Phone]
         public string? CustomerPhone { get; set; }
 
-        public List<SeatDto> SelectedSeats { get; set; }
-
-        [Required]
-        public int RoleId { get; set; }
     }
     public class ValidateTicketDto
     {
