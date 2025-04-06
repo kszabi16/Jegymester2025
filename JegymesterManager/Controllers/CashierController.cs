@@ -1,6 +1,7 @@
 ﻿using Jegymester.DataContext.Dtos;
 using Jegymester.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jegymester.Controllers
 {
@@ -15,17 +16,15 @@ namespace Jegymester.Controllers
             _cashierService = cashierService;
         }
 
-       
-
         [HttpPost("PurchaseGuest")]
-        public async Task<IActionResult> PurchaseTicketForGuest( int seatId, CashierTicketPurchaseDto guestDto, string ticketType, decimal price)
+        public async Task<IActionResult> PurchaseTicketForGuest(int seatId, CashierTicketPurchaseDto guestDto, string ticketType, decimal price)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var ticket = await _cashierService.PurchaseTicketForGuestAsync(seatId,guestDto,ticketType,price);
+                var ticket = await _cashierService.PurchaseTicketForGuestAsync(seatId, guestDto, ticketType, price);
                 return Ok(ticket);
             }
             catch (ArgumentException ex)

@@ -38,6 +38,8 @@ namespace Jegymester.DataContext.Dtos
     public class ScreeningUpdateDto
     {
         [Required]
+        public int Id { get; set; }
+        [Required]
         public int MovieId { get; set; }
 
         [Required]

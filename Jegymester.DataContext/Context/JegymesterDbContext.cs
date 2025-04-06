@@ -27,29 +27,35 @@ namespace Jegymester.DataContext.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<Ticket>()
-            //    .HasOne(t => t.Screenings)
-            //    .WithMany(s => s.Tickets)
-            //    .HasForeignKey(t => t.ScreeningId)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Screenings)
+                .WithMany(s => s.Tickets)
+                .HasForeignKey(t => t.ScreeningId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            //modelBuilder.Entity<Ticket>()
-            //    .HasOne(t => t.Users)
-            //    .WithMany()
-            //    .HasForeignKey(t => t.UserId)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Users)
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            //modelBuilder.Entity<Ticket>()
-            //    .HasOne(t => t.Seat)
-            //    .WithMany()
-            //    .HasForeignKey(t => t.SeatId)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Seat)
+                .WithMany()
+                .HasForeignKey(t => t.SeatId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // User - Role many-to-many kapcsolat (EF Core automatikusan kezeli)
             //modelBuilder.Entity<User>()
             //    .HasMany(u => u.Roles)
             //    .WithMany(r => r.Users)
             //    .UsingEntity(j => j.ToTable("UserRoles"));
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Seat)
+                .WithMany()
+                .HasForeignKey(t => t.SeatId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
         }
     }
 }

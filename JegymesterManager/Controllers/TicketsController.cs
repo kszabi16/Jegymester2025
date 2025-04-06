@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
+using Jegymester.Services;
+using Jegymester.DataContext.Dtos;
 
 namespace JegymesterManager.Controllers
 {
@@ -14,93 +16,56 @@ namespace JegymesterManager.Controllers
     [ApiController]
     public class TicketsController : ControllerBase
     {
-        private readonly JegymesterDbContext _context;
+        private readonly ITicketService _ticketService;
 
-        public TicketsController(JegymesterDbContext context)
+        public TicketsController(ITicketService ticketService)
         {
-            _context = context;
+            _ticketService = ticketService;
         }
 
-        
-        [HttpGet("GetAllTicket")]
-        public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TicketDto>>> GetAllTickets()
         {
-            return await _context.Tickets.ToListAsync();
+            var tickets = await _ticketService.GetAllAsync();
+            return Ok(tickets);
         }
 
-       
-        [HttpGet("GetById")]
-        public async Task<ActionResult<Ticket>> GetTicket(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TicketDto>> GetTicketById(int id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
-
+            var ticket = await _ticketService.GetByIdAsync(id);
             if (ticket == null)
-            {
                 return NotFound();
-            }
 
-            return ticket;
+            return Ok(ticket);
         }
 
-        
-        [HttpPut("CreateTicket")]
-        public async Task<IActionResult> PutTicket(int id, Ticket ticket)
+        [HttpPost]
+        public async Task<ActionResult<TicketDto>> CreateTicket([FromBody] TicketDto ticketDto)
         {
-            if (id != ticket.Id)
-            {
-                return BadRequest();
-            }
+            var created = await _ticketService.CreateAsync(ticketDto);
+            return CreatedAtAction(nameof(GetTicketById), new { id = created.Id }, created);
+        }
 
-            _context.Entry(ticket).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TicketExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTicket(int id, [FromBody] TicketDto ticketDto)
+        {
+            var result = await _ticketService.UpdateAsync(id, ticketDto);
+            if (result == null)
+                return NotFound();
 
             return NoContent();
         }
 
-        
-        [HttpPost("UpdateTicket")]
-        public async Task<ActionResult<Ticket>> PostTicket(Ticket ticket)
-        {
-            _context.Tickets.Add(ticket);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTicket", new { id = ticket.Id }, ticket);
-        }
-
-       
-        [HttpDelete("DeleteTicket")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket == null)
-            {
+            var success = await _ticketService.DeleteAsync(id);
+            if (!success)
                 return NotFound();
-            }
-
-            _context.Tickets.Remove(ticket);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
-
-        private bool TicketExists(int id)
-        {
-            return _context.Tickets.Any(e => e.Id == id);
-        }
     }
+
 }

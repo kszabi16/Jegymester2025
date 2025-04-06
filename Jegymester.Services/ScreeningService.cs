@@ -13,12 +13,13 @@ namespace Jegymester.Services
 {
     public interface IScreeningService
     {
-        Task<IEnumerable<TicketDto>> GetAllAsync();
-        Task<TicketDto> GetByIdAsync(int id);
-        Task<TicketDto> CreateAsync(TicketDto dto);
-        Task<TicketDto> UpdateAsync(int id, TicketDto dto);
+        Task<IEnumerable<ScreeningDto>> GetAllAsync();
+        Task<ScreeningDto> GetByIdAsync(int id);
+        Task<ScreeningDto> CreateAsync(ScreeningCreateDto dto);
+        Task<ScreeningDto> UpdateAsync(int id, ScreeningUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }
+
 
     public class ScreeningService : IScreeningService
     {
@@ -31,38 +32,43 @@ namespace Jegymester.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TicketDto>> GetAllAsync()
+        public async Task<IEnumerable<ScreeningDto>> GetAllAsync()
         {
             var screenings = await _context.Screenings.ToListAsync();
-            return _mapper.Map<IEnumerable<TicketDto>>(screenings);
+            return _mapper.Map<IEnumerable<ScreeningDto>>(screenings);
         }
-        public async Task<TicketDto> GetByIdAsync(int id)
+
+        public async Task<ScreeningDto> GetByIdAsync(int id)
         {
             var screening = await _context.Screenings.FindAsync(id);
             if (screening == null)
             {
                 throw new KeyNotFoundException("Screening not found.");
             }
-            return _mapper.Map<TicketDto>(screening);
+            return _mapper.Map<ScreeningDto>(screening);
         }
-        public async Task<TicketDto> CreateAsync(TicketDto dto)
+
+        public async Task<ScreeningDto> CreateAsync(ScreeningCreateDto dto)
         {
             var screening = _mapper.Map<Screening>(dto);
             _context.Screenings.Add(screening);
             await _context.SaveChangesAsync();
-            return _mapper.Map<TicketDto>(screening);
+            return _mapper.Map<ScreeningDto>(screening);
         }
-        public async Task<TicketDto> UpdateAsync(int id, TicketDto dto)
+
+        public async Task<ScreeningDto> UpdateAsync(int id, ScreeningUpdateDto dto)
         {
             var screening = await _context.Screenings.FindAsync(id);
             if (screening == null)
             {
                 throw new KeyNotFoundException("Screening not found.");
             }
+
             _mapper.Map(dto, screening);
             await _context.SaveChangesAsync();
-            return _mapper.Map<TicketDto>(screening);
+            return _mapper.Map<ScreeningDto>(screening);
         }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var screening = await _context.Screenings.FindAsync(id);
@@ -70,10 +76,11 @@ namespace Jegymester.Services
             {
                 throw new KeyNotFoundException("Screening not found.");
             }
+
             _context.Screenings.Remove(screening);
             await _context.SaveChangesAsync();
             return true;
         }
-
     }
+
 }

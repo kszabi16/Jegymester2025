@@ -16,15 +16,15 @@ namespace Jegymester.DataContext
             CreateMap<Role, RoleDto>();
             CreateMap<Role, UpdateUserRolesDto>().ReverseMap();
 
-            CreateMap<Screening, ScreeningDto>().ReverseMap();
-            CreateMap<Screening, ScreeningCreateDto>().ReverseMap();
+            CreateMap<Screening, ScreeningDto>();
+            CreateMap<ScreeningCreateDto, Screening>();
             CreateMap<Screening, ScreeningUpdateDto>().ReverseMap();
 
             CreateMap<Seat, SeatDto>().ReverseMap();
 
             CreateMap<Ticket, TicketDto>().ReverseMap();
-            
-            
+            CreateMap<TicketCreateDto, Ticket>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<Ticket, CashierTicketPurchaseDto>().ReverseMap();
             CreateMap<Ticket, ValidateTicketDto>().ReverseMap();
 
@@ -32,6 +32,10 @@ namespace Jegymester.DataContext
             CreateMap<RegisterUserDto, User>();
             CreateMap<UserUpdateDto, User>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            
+
+
         }
     }
 }

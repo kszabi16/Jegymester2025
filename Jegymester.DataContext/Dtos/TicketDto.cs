@@ -36,7 +36,8 @@ namespace Jegymester.DataContext.Dtos
 
         [Phone]
         public string? CustomerPhone { get; set; }
-
+        [Required]
+        public string Name { get; set; }
     }
     public class ValidateTicketDto
     {
@@ -46,4 +47,16 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public int RoleId { get; set; }
     }
+    public class TicketCreateDto
+    {
+        [Required]
+        public int ScreeningId { get; set; }
+
+        public string TicketType { get; set; }
+
+        public decimal Price { get; set; }
+
+        public DateTime PurchaseDate { get; set; }
+    }
+
 }

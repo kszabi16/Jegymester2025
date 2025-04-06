@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
+using Jegymester.Services;
+using Jegymester.DataContext.Dtos;
 
 namespace JegymesterManager.Controllers
 {
@@ -14,93 +16,74 @@ namespace JegymesterManager.Controllers
     [ApiController]
     public class ScreeningsController : ControllerBase
     {
-        private readonly JegymesterDbContext _context;
+        private readonly IScreeningService _screeningService;
 
-        public ScreeningsController(JegymesterDbContext context)
+        public ScreeningsController(IScreeningService screeningService)
         {
-            _context = context;
+            _screeningService = screeningService;
         }
 
-        
-        [HttpGet("GetAllScreening")]
-        public async Task<ActionResult<IEnumerable<Screening>>> GetScreenings()
+        // GET api/screenings
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ScreeningDto>>> GetScreenings()
         {
-            return await _context.Screenings.ToListAsync();
+            var screenings = await _screeningService.GetAllAsync();
+            return Ok(screenings);
         }
 
-       
-        [HttpGet("GetById")]
-        public async Task<ActionResult<Screening>> GetScreening(int id)
+        // GET api/screenings/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ScreeningDto>> GetScreening(int id)
         {
-            var screening = await _context.Screenings.FindAsync(id);
+            var screening = await _screeningService.GetByIdAsync(id);
 
             if (screening == null)
             {
                 return NotFound();
             }
 
-            return screening;
+            return Ok(screening);
         }
 
-        
-        [HttpPut("CreateScreening")]
-        public async Task<IActionResult> PutScreening(int id, Screening screening)
+        // POST api/screenings
+        [HttpPost]
+        public async Task<ActionResult<ScreeningDto>> CreateScreening([FromBody] ScreeningCreateDto screeningDto)
         {
-            if (id != screening.Id)
+            var createdScreening = await _screeningService.CreateAsync(screeningDto);
+            return CreatedAtAction(nameof(GetScreening), new { id = createdScreening.Id }, createdScreening);
+        }
+
+
+        // PUT api/screenings/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateScreening(int id, [FromBody] ScreeningUpdateDto screeningDto)
+        {
+            if (id != screeningDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(screening).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ScreeningExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        
-        [HttpPost("UpdateScreening")]
-        public async Task<ActionResult<Screening>> PostScreening(Screening screening)
-        {
-            _context.Screenings.Add(screening);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetScreening", new { id = screening.Id }, screening);
-        }
-
-        
-        [HttpDelete("DeleteScreening")]
-        public async Task<IActionResult> DeleteScreening(int id)
-        {
-            var screening = await _context.Screenings.FindAsync(id);
-            if (screening == null)
+            var updated = await _screeningService.UpdateAsync(id, screeningDto);
+            if (updated == null)
             {
                 return NotFound();
             }
 
-            _context.Screenings.Remove(screening);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
-        private bool ScreeningExists(int id)
+        // DELETE api/screenings/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteScreening(int id)
         {
-            return _context.Screenings.Any(e => e.Id == id);
+            var success = await _screeningService.DeleteAsync(id);
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
     }
+
 }

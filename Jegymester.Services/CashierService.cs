@@ -36,7 +36,8 @@ namespace Jegymester.Services
             var guest = new User
             {
                 Email = guestDto.CustomerEmail, 
-                PhoneNumber = guestDto.CustomerPhone,              
+                PhoneNumber = guestDto.CustomerPhone,
+                Name = guestDto.Name
             };
             
             _context.Users.Add(guest);
@@ -61,19 +62,36 @@ namespace Jegymester.Services
         public async Task<bool> ValidateTicketAsync(int ticketId)
         {
             var ticket = await _context.Tickets.FindAsync(ticketId);
-            if (ticket == null || ticket.Deleted)
+            if (ticket == null)
+            {
+                Console.WriteLine("Ticket not found");
                 return false;
+            }
+
+            if (ticket.Deleted)
+            {
+                Console.WriteLine("Ticket already used");
+                return false;
+            }
 
             var screening = await _context.Screenings.FindAsync(ticket.ScreeningId);
-            if (screening == null || screening.StartTime < DateTime.UtcNow)
+            if (screening == null)
+            {
+                Console.WriteLine("Screening not found");
                 return false;
+            }
 
-            
+            if (screening.StartTime <= DateTime.UtcNow)
+            {
+                Console.WriteLine($"Screening has already started: {screening.StartTime}");
+                return false;
+            }
+
             ticket.Deleted = true;
             await _context.SaveChangesAsync();
 
             return true;
         }
-
     }
+
 }
