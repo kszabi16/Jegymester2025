@@ -73,7 +73,7 @@ namespace Jegymester.Services
                 throw new KeyNotFoundException("Movie not found.");
             }
 
-            _context.Movies.Remove(movie);
+            movie.Deleted = true;
             await _context.SaveChangesAsync();
             return true;
         }
