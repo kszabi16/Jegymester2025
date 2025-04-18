@@ -64,7 +64,10 @@ namespace Jegymester.Services
                 throw new KeyNotFoundException("Screening not found.");
             }
 
-            _mapper.Map(dto, screening);
+            screening.MovieId = dto.MovieId;
+            screening.StartTime = dto.StartTime;
+            screening.RoomId = dto.RoomId;
+
             await _context.SaveChangesAsync();
             return _mapper.Map<ScreeningDto>(screening);
         }
@@ -77,7 +80,7 @@ namespace Jegymester.Services
                 throw new KeyNotFoundException("Screening not found.");
             }
 
-            _context.Screenings.Remove(screening);
+            screening.Deleted = true;
             await _context.SaveChangesAsync();
             return true;
         }

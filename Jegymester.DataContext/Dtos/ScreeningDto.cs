@@ -14,7 +14,8 @@ namespace Jegymester.DataContext.Dtos
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public int RoomId { get; set; }
-        public int AvailableSeats { get; set; }
+        //public string Title { get; set; }
+        //public int AvailableSeats { get; set; }
 
     }
    
@@ -23,8 +24,8 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public int MovieId { get; set; }
 
-        [Required]
-        public string Title { get; set; }
+        //[Required]
+        //public string Title { get; set; }
 
         [Required]
         public DateTime StartTime { get; set; }
@@ -32,18 +33,18 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public int RoomId { get; set; }
 
-        [Required]
-        public int AvailableSeats { get; set; }
+       //[Required]
+       //public int AvailableSeats { get; set; }
     }
     public class ScreeningUpdateDto
     {
-        [Required]
-        public int Id { get; set; }
+        //[Required]
+        //public int Id { get; set; }
         [Required]
         public int MovieId { get; set; }
 
-        [Required]
-        public string Title { get; set; }
+        //[Required]
+        //public string Title { get; set; }
 
         [Required]
         public DateTime StartTime { get; set; }
@@ -51,7 +52,7 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public int RoomId { get; set; }
 
-        [Required]
-        public int AvailableSeats { get; set; }
+        //[Required]
+        //public int AvailableSeats { get; set; }
     }
 }

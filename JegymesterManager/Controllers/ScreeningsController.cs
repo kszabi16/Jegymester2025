@@ -58,7 +58,7 @@ namespace JegymesterManager.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateScreening(int id, [FromBody] ScreeningUpdateDto screeningDto)
         {
-            if (id != screeningDto.Id)
+            if (screeningDto == null)
             {
                 return BadRequest();
             }
@@ -69,7 +69,7 @@ namespace JegymesterManager.Controllers
                 return NotFound();
             }
 
-            return NoContent();
+            return Ok(updated);
         }
 
         // DELETE api/screenings/{id}
