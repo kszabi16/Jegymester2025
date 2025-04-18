@@ -4,6 +4,7 @@ using Jegymester.DataContext.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Jegymester.DataContext.Migrations
 {
     [DbContext(typeof(JegymesterDbContext))]
-    partial class JegymesterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418163326_TicketNew")]
+    partial class TicketNew
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +46,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Movie", b =>
@@ -84,7 +87,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies", (string)null);
+                    b.ToTable("Movies");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Role", b =>
@@ -104,7 +107,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Room", b =>
@@ -123,7 +126,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Screening", b =>
@@ -159,7 +162,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Screenings", (string)null);
+                    b.ToTable("Screenings");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Seat", b =>
@@ -189,7 +192,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Seats", (string)null);
+                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Ticket", b =>
@@ -241,7 +244,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.User", b =>
@@ -269,7 +272,7 @@ namespace Jegymester.DataContext.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("RoleUser", b =>

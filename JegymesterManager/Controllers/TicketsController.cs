@@ -41,66 +41,34 @@ namespace JegymesterManager.Controllers
 
             return Ok(ticket);
         }
-
         [HttpPost]
-        public async Task<ActionResult<TicketDto>> CreateTicket([FromBody] TicketDto ticketDto)
+        public async Task<ActionResult<TicketDto>> CreateAsync(TicketCreateDto dto)
         {
-            var created = await _ticketService.CreateAsync(ticketDto);
-            return CreatedAtAction(nameof(GetTicketById), new { id = created.Id }, created);
+            var ticket = await _ticketService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetTicketById), new { id = ticket.Id }, ticket);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTicket(int id, [FromBody] TicketDto ticketDto)
+        public async Task<ActionResult<TicketDto>> UpdateTicket(int id, [FromBody] TicketUpdateDto ticketDto)
         {
-            var result = await _ticketService.UpdateAsync(id, ticketDto);
-            if (result == null)
+            if (ticketDto == null)
+                return BadRequest();
+
+            var updatedTicket = await _ticketService.UpdateAsync(id, ticketDto);
+            if (updatedTicket == null)
                 return NotFound();
 
-            return NoContent();
+            return Ok(updatedTicket);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
-            var success = await _ticketService.DeleteAsync(id);
-            if (!success)
+            var result = await _ticketService.DeleteAsync(id);
+            if (!result)
                 return NotFound();
-
-        
-        [HttpPut("CreateTicket")]
-        public async Task<ActionResult<Ticket>> CreateTicket(TicketDto ticketDto)
-        {
-            var createdTicket = await _ticketService.CreateAsync(ticketDto);
-            return CreatedAtAction(nameof(GetTicket), new { id = createdTicket.Id }, createdTicket);
-        }
-
-        
-        [HttpPost("UpdateTicket")]
-        public async Task<ActionResult<Ticket>> PostTicket(int id,TicketDto ticket)
-        {
-            var updatedTicket = await _ticketService.UpdateAsync(id, ticket);
-            if (updatedTicket == null)
-            {
-                return NotFound();
-            }
 
             return NoContent();
-        }
-
-       
-        [HttpDelete("DeleteTicket")]
-        public async Task<IActionResult> DeleteTicket(int id)
-        {
-            var movie = await _ticketService.DeleteAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            await _ticketService.DeleteAsync(id);
-            return NoContent();
-
         }
     }
-
 }

@@ -7,6 +7,7 @@ using AutoMapper;
 using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Dtos;
 using Jegymester.DataContext.Entities;
+using Jegymester.DataContext.Migrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jegymester.Services
@@ -15,8 +16,8 @@ namespace Jegymester.Services
     {
         Task<IEnumerable<TicketDto>> GetAllAsync();
         Task<TicketDto> GetByIdAsync(int id);
-        Task<TicketDto> CreateAsync(TicketDto dto);
-        Task<TicketDto> UpdateAsync(int id, TicketDto dto);
+        Task<TicketDto> CreateAsync(TicketCreateDto dto);
+        Task<TicketDto> UpdateAsync(int id, TicketUpdateDto dto);
         Task<bool> DeleteAsync(int id);
 
     }
@@ -47,22 +48,18 @@ namespace Jegymester.Services
             return _mapper.Map<TicketDto>(ticket);
         }
 
-        public async Task<TicketDto> CreateAsync(TicketDto dto)
-        {
-            var ticket = _mapper.Map<Ticket>(dto);
-            _context.Tickets.Add(ticket);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<TicketDto>(ticket);
-        }
-
-        public async Task<TicketDto> UpdateAsync(int id, TicketDto dto)
+        public async Task<TicketDto> UpdateAsync(int id, TicketUpdateDto dto)
         {
             var ticket = await _context.Tickets.FindAsync(id);
             if (ticket == null)
             {
                 throw new KeyNotFoundException("Ticket not found.");
             }
-            _mapper.Map(dto, ticket);
+
+            ticket.TicketType = dto.TicketType;
+            ticket.Price = dto.Price;
+            ticket.PurchaseDate = dto.PurchaseDate;
+
             await _context.SaveChangesAsync();
             return _mapper.Map<TicketDto>(ticket);
         }
@@ -79,5 +76,35 @@ namespace Jegymester.Services
             return true;
         }
 
+        public async Task<TicketDto> CreateAsync(TicketCreateDto dto)
+        {
+            var screening = await _context.Screenings
+                .Include(s => s.Movie)
+                .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
+            if (screening == null)
+                throw new ArgumentException("Screening not found.");
+
+            var seat = await _context.Seats.FindAsync(dto.SeatId);
+            if (seat == null || seat.IsOccupied)
+                throw new InvalidOperationException("Seat is not available.");
+
+            var ticket = new Ticket
+            {
+                ScreeningId = dto.ScreeningId,
+                SeatId = dto.SeatId,
+                TicketType = dto.TicketType,
+                Price = dto.Price,
+                PurchaseDate = dto.PurchaseDate,
+                ScreeningTime = screening.StartTime,
+                Title = screening.Movie.Title
+
+            };
+
+            _context.Tickets.Add(ticket);
+            seat.IsOccupied = true;
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<TicketDto>(ticket);
+        }
     }
 }

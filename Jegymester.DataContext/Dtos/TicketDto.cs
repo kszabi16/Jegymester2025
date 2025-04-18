@@ -54,11 +54,20 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public int ScreeningId { get; set; }
 
+        [Required]
+        public int SeatId { get; set; }
+
         public string TicketType { get; set; }
 
         public decimal Price { get; set; }
 
         public DateTime PurchaseDate { get; set; }
+        public int? UserId { get; set; }
     }
-
+    public class TicketUpdateDto
+    {
+        public string TicketType { get; set; }
+        public decimal Price { get; set; }
+        public DateTime PurchaseDate { get; set; }
+    }
 }

@@ -18,9 +18,12 @@ namespace Jegymester.DataContext.Entities
         public int ScreeningId { get; set; }
 
         public User Users { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         public Seat Seat { get; set; }
         public int SeatId { get; set; }
+        public DateTime PurchaseDate { get; set; }
+        public DateTime ScreeningTime { get; set; }
+        public string? Title { get; set; }
     }
 }
