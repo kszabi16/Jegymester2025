@@ -17,14 +17,14 @@ namespace Jegymester.Controllers
         }
 
         [HttpPost("PurchaseGuest")]
-        public async Task<IActionResult> PurchaseTicketForGuest(int seatId, CashierTicketPurchaseDto guestDto, string ticketType, decimal price)
+        public async Task<IActionResult> PurchaseTicketForGuest([FromBody] CashierTicketPurchaseDto guestDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var ticket = await _cashierService.PurchaseTicketForGuestAsync(seatId, guestDto, ticketType, price);
+                var ticket = await _cashierService.PurchaseTicketForGuestAsync(guestDto);
                 return Ok(ticket);
             }
             catch (ArgumentException ex)

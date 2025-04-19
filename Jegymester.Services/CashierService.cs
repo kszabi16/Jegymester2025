@@ -2,6 +2,7 @@
 using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Dtos;
 using Jegymester.DataContext.Entities;
+using Jegymester.DataContext.Migrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jegymester.Services
@@ -9,7 +10,7 @@ namespace Jegymester.Services
     public interface ICashierService
     {
        
-        Task<TicketDto> PurchaseTicketForGuestAsync(int seatId,CashierTicketPurchaseDto guestDto, string ticketType, decimal price);
+        Task<TicketDto> PurchaseTicketForGuestAsync(CashierTicketPurchaseDto guestDto);
         Task<bool> ValidateTicketAsync(int ticketId);
     }
 
@@ -24,13 +25,16 @@ namespace Jegymester.Services
             _context = context;
         }
 
-        public async Task<TicketDto> PurchaseTicketForGuestAsync(int seatId, CashierTicketPurchaseDto guestDto,string ticketType,decimal price)
+        public async Task<TicketDto> PurchaseTicketForGuestAsync(CashierTicketPurchaseDto guestDto)
         {
-           
-
-            var seat = await _context.Seats.FindAsync(seatId);
+            var seat = await _context.Seats.FindAsync(guestDto.SeatId);
             if (seat == null || seat.IsOccupied)
                 throw new InvalidOperationException("Seat is not available.");
+            var screening = await _context.Screenings
+                .Include(s => s.Movie)
+                .FirstOrDefaultAsync(s => s.Id == guestDto.ScreeningId);
+            if (screening == null)
+                throw new InvalidOperationException("Invalid screening ID.");
 
 
             var guest = new User
@@ -45,10 +49,14 @@ namespace Jegymester.Services
 
             var ticket = new Ticket
             {
-               
-                SeatId = seatId,
-                TicketType = ticketType,
-                Price = price,
+                ScreeningId = guestDto.ScreeningId,
+                SeatId = guestDto.SeatId,
+                UserId = guestDto.UserId,
+                TicketType = guestDto.TicketType,
+                Price = guestDto.Price,
+                PurchaseDate = DateTime.UtcNow,
+                ScreeningTime = screening.StartTime,
+                Title = screening.Movie.Title
             };
 
             seat.IsOccupied = true;

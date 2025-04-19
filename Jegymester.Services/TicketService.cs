@@ -66,14 +66,21 @@ namespace Jegymester.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await _context.Tickets.Include(t => t.Screenings).FirstOrDefaultAsync(t => t.Id == id);
             if (ticket == null)
             {
                 throw new KeyNotFoundException("Ticket not found.");
             }
-            ticket.Deleted = true;
-            await _context.SaveChangesAsync();
-            return true;
+            if (ticket.Screenings.StartTime.AddHours(-4) >= DateTime.UtcNow)
+            {
+                ticket.Deleted = true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                throw new TimeoutException("Can't delete ticket within 4 hours of screening!");
+            }
         }
 
         public async Task<TicketDto> CreateAsync(TicketCreateDto dto)
@@ -92,6 +99,7 @@ namespace Jegymester.Services
             {
                 ScreeningId = dto.ScreeningId,
                 SeatId = dto.SeatId,
+                UserId = dto.UserId,
                 TicketType = dto.TicketType,
                 Price = dto.Price,
                 PurchaseDate = dto.PurchaseDate,

@@ -27,9 +27,9 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public int ScreeningId { get; set; }
 
-        [Required]
-        [Range(1, 10)]
-        public int TicketCount { get; set; }
+        //[Required]
+        //[Range(1, 10)]
+        //public int TicketCount { get; set; }
 
         public int? UserId { get; set; } // null if guest purchase
 
@@ -40,6 +40,10 @@ namespace Jegymester.DataContext.Dtos
         public string? CustomerPhone { get; set; }
         [Required]
         public string Name { get; set; }
+        public int SeatId { get; set; }
+        public string TicketType { get; set; }
+        public decimal Price { get; set; }
+        public DateTime PurchaseDate { get; set; }
     }
     public class ValidateTicketDto
     {
