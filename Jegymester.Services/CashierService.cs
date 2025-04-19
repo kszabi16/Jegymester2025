@@ -36,15 +36,6 @@ namespace Jegymester.Services
             if (screening == null)
                 throw new InvalidOperationException("Invalid screening ID.");
 
-
-            var guest = new User
-            {
-                Email = guestDto.CustomerEmail, 
-                PhoneNumber = guestDto.CustomerPhone,
-                Name = guestDto.Name
-            };
-            
-            _context.Users.Add(guest);
             await _context.SaveChangesAsync();
 
             var ticket = new Ticket

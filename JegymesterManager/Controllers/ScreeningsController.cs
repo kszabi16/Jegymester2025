@@ -24,7 +24,7 @@ namespace JegymesterManager.Controllers
         }
 
         // GET api/screenings
-        [HttpGet]
+        [HttpGet("GetAllScreenings")]
         public async Task<ActionResult<IEnumerable<ScreeningDto>>> GetScreenings()
         {
             var screenings = await _screeningService.GetAllAsync();
@@ -32,7 +32,7 @@ namespace JegymesterManager.Controllers
         }
 
         // GET api/screenings/{id}
-        [HttpGet("{id}")]
+        [HttpGet("GetScreeningById/{id}")]
         public async Task<ActionResult<ScreeningDto>> GetScreening(int id)
         {
             var screening = await _screeningService.GetByIdAsync(id);
@@ -46,7 +46,7 @@ namespace JegymesterManager.Controllers
         }
 
         // POST api/screenings
-        [HttpPost]
+        [HttpPost("CreateScreening")]
         public async Task<ActionResult<ScreeningDto>> CreateScreening([FromBody] ScreeningCreateDto screeningDto)
         {
             var createdScreening = await _screeningService.CreateAsync(screeningDto);
@@ -55,7 +55,7 @@ namespace JegymesterManager.Controllers
 
 
         // PUT api/screenings/{id}
-        [HttpPut("{id}")]
+        [HttpPut("UpdateScreening/{id}")]
         public async Task<IActionResult> UpdateScreening(int id, [FromBody] ScreeningUpdateDto screeningDto)
         {
             if (screeningDto == null)
@@ -73,7 +73,7 @@ namespace JegymesterManager.Controllers
         }
 
         // DELETE api/screenings/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteScreening/{id}")]
         public async Task<IActionResult> DeleteScreening(int id)
         {
             var success = await _screeningService.DeleteAsync(id);

@@ -4,6 +4,7 @@ using Jegymester.DataContext.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Jegymester.DataContext.Migrations
 {
     [DbContext(typeof(JegymesterDbContext))]
-    partial class JegymesterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419154627_PasswordHash")]
+    partial class PasswordHash
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,10 +124,6 @@ namespace Jegymester.DataContext.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Rooms");
@@ -167,6 +166,9 @@ namespace Jegymester.DataContext.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Column")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
@@ -176,9 +178,8 @@ namespace Jegymester.DataContext.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SeatNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Row")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -320,13 +321,13 @@ namespace Jegymester.DataContext.Migrations
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Seat", b =>
                 {
-                    b.HasOne("Jegymester.DataContext.Entities.Room", "Room")
-                        .WithMany("Seats")
+                    b.HasOne("Jegymester.DataContext.Entities.Room", "Rooms")
+                        .WithMany()
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Room");
+                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Ticket", b =>
@@ -387,8 +388,6 @@ namespace Jegymester.DataContext.Migrations
             modelBuilder.Entity("Jegymester.DataContext.Entities.Room", b =>
                 {
                     b.Navigation("Screenings");
-
-                    b.Navigation("Seats");
                 });
 
             modelBuilder.Entity("Jegymester.DataContext.Entities.Screening", b =>

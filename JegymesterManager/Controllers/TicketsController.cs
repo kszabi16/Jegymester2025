@@ -24,7 +24,7 @@ namespace JegymesterManager.Controllers
 
         }
 
-        [HttpGet]
+        [HttpGet("GetAllTickets")]
         public async Task<ActionResult<IEnumerable<TicketDto>>> GetAllTickets()
         {
             var tickets = await _ticketService.GetAllAsync();
@@ -32,7 +32,7 @@ namespace JegymesterManager.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetTicketById/{id}")]
         public async Task<ActionResult<TicketDto>> GetTicketById(int id)
         {
             var ticket = await _ticketService.GetByIdAsync(id);
@@ -41,14 +41,14 @@ namespace JegymesterManager.Controllers
 
             return Ok(ticket);
         }
-        [HttpPost]
+        [HttpPost("CreateTicket")]
         public async Task<ActionResult<TicketDto>> CreateAsync(TicketCreateDto dto)
         {
             var ticket = await _ticketService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetTicketById), new { id = ticket.Id }, ticket);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateTicket/{id}")]
         public async Task<ActionResult<TicketDto>> UpdateTicket(int id, [FromBody] TicketUpdateDto ticketDto)
         {
             if (ticketDto == null)
@@ -61,7 +61,7 @@ namespace JegymesterManager.Controllers
             return Ok(updatedTicket);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteTicket{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
             var result = await _ticketService.DeleteAsync(id);

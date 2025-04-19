@@ -20,6 +20,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICashierService, CashierService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IScreeningService, ScreeningService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 
 // AutoMapper Config
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

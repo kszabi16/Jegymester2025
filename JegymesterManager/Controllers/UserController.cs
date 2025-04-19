@@ -23,10 +23,16 @@ namespace JegymesterManager.Controllers
             _userService = userService;
         }
 
-        [HttpPost("RegisterUser")]
+        [HttpPost("RegisterCustomer")]
         public async Task<IActionResult> Register(RegisterUserDto userDto)
         {
-            var result = await _userService.RegisterAsync(userDto);
+            var result = await _userService.RegisterCustomerAsync(userDto);
+            return Ok(result);
+        }
+        [HttpPost("RegisterWithRoles")]
+        public async Task<IActionResult> RegisterWithRolesAsync(RegisterWithRolesDto userDto)
+        {
+            var result = await _userService.RegisterWithRolesAsync(userDto);
             return Ok(result);
         }
 
@@ -40,15 +46,15 @@ namespace JegymesterManager.Controllers
         [HttpPut("UpdateProfile")]
         public async Task<IActionResult> UpdateProfile(int userId, UserUpdateDto userDto)
         {
-            var result = await _userService.UpdateProfileAsync(userId, userDto);
+            var result = await _userService.UpdateUserAsync(userId, userDto);
             return Ok(result);
+        }
+        [HttpGet("GetUserTickets")]
+        public async Task<IActionResult> GetUserTickets(int userId)
+        {
+            var tickets = await _userService.GetUserTicketsAsync(userId);
+            return Ok(tickets);
         }
 
-        [HttpGet("Roles")]
-        public async Task<IActionResult> GetRoles()
-        {
-            var result = await _userService.GetRolesAsync();
-            return Ok(result);
-        }
     }
 }

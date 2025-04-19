@@ -27,6 +27,16 @@ namespace Jegymester.DataContext.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<User>()
+                .Property(u => u.PasswordHash)
+                .HasMaxLength(60) 
+                .HasColumnType("nvarchar(60)")
+                .IsRequired();
+
+            modelBuilder.Entity<Ticket>()
+                .Property(t => t.Price)
+                .HasPrecision(18, 4);
+
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Screenings)
                 .WithMany(s => s.Tickets)

@@ -9,16 +9,28 @@ namespace Jegymester.DataContext.Dtos
 {
     public class SeatDto
     {
+        public int Id { get; set; }
+        public int RoomId { get; set; }
+        public string SeatNumber { get; set; }
+        public bool IsOccupied { get; set; }
+    }
+
+    public class SeatCreateDto
+    {
         [Required]
-        public string Row { get; set; }
+        public int RoomId { get; set; }
 
         [Required]
-        public string Column { get; set; }
+        [StringLength(10)]
+        public string SeatNumber { get; set; }
+    }
 
+    public class SeatUpdateDto
+    {
         [Required]
-        public string TicketType { get; set; }
-        [Required]
-        public bool IsOccupied { get; set; } = false;
+        [StringLength(10)]
+        public string SeatNumber { get; set; }
 
+        public bool IsOccupied { get; set; }
     }
 }
