@@ -10,8 +10,9 @@ namespace Jegymester.DataContext.Entities
     public class Ticket : AbstractEntity
     {
         public decimal Price { get; set; }
-
         public string TicketType { get; set; }
+        public DateTime PurchaseDate { get; set; }
+        public DateTime ScreeningTime { get; set; }
 
         //Kapcsolatok
         public Screening Screenings { get; set; }
@@ -22,8 +23,7 @@ namespace Jegymester.DataContext.Entities
 
         public Seat Seat { get; set; }
         public int SeatId { get; set; }
-        public DateTime PurchaseDate { get; set; }
-        public DateTime ScreeningTime { get; set; }
-        public string? Title { get; set; }
+       
+        
     }
 }

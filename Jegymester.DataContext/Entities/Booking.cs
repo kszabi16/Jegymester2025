@@ -11,9 +11,11 @@ namespace Jegymester.DataContext.Entities
     {
         public DateTime BuyDate { get; set; }
 
+        public int Quantity { get; set; }
+
         //Kapcsolatok
         public User User { get; set; }
-        public int UserId { get; set; }
+        public int?  UserId { get; set; }
 
         public List<Ticket> Tickets { get; set; }
 

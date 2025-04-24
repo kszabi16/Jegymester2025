@@ -42,11 +42,7 @@ namespace JegymesterManager.Controllers
             return Ok(ticket);
         }
         [HttpPost("CreateTicket")]
-        public async Task<ActionResult<TicketDto>> CreateAsync(TicketCreateDto dto)
-        {
-            var ticket = await _ticketService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetTicketById), new { id = ticket.Id }, ticket);
-        }
+        
 
         [HttpPut("UpdateTicket/{id}")]
         public async Task<ActionResult<TicketDto>> UpdateTicket(int id, [FromBody] TicketUpdateDto ticketDto)

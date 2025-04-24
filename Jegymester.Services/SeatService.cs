@@ -57,9 +57,21 @@ namespace Jegymester.Services
         public async Task<SeatDto> CreateSeatAsync(SeatCreateDto createDto)
         {
             var room = await _context.Rooms
-                .AnyAsync(r => r.Id == createDto.RoomId && !r.Deleted);
-            if (!room)
-                throw new KeyNotFoundException("Room not found.");
+                .FirstOrDefaultAsync(r => r.Id == createDto.RoomId && !r.Deleted);
+            if (room == null)
+                throw new KeyNotFoundException("Room not found");
+
+            var currentSeatCount = await _context.Seats
+                .CountAsync(s => s.RoomId == createDto.RoomId && !s.Deleted);
+
+            if (currentSeatCount >= room.Capacity)
+                throw new InvalidOperationException($"The room ({room.Id}) with ({room.Capacity}) seats is full.");
+
+           
+            var seatExists = await _context.Seats
+                .AnyAsync(s => s.RoomId == createDto.RoomId && !s.Deleted && s.SeatNumber == createDto.SeatNumber);
+            if (seatExists)
+                throw new InvalidOperationException($"A seat already exists with the ({createDto.SeatNumber}) seat number in this room. ");
 
             var seat = _mapper.Map<Seat>(createDto);
             await _context.Seats.AddAsync(seat);

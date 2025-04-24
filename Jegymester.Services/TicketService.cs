@@ -16,7 +16,6 @@ namespace Jegymester.Services
     {
         Task<IEnumerable<TicketDto>> GetAllAsync();
         Task<TicketDto> GetByIdAsync(int id);
-        Task<TicketDto> CreateAsync(TicketCreateDto dto);
         Task<TicketDto> UpdateAsync(int id, TicketUpdateDto dto);
         Task<bool> DeleteAsync(int id);
 
@@ -63,7 +62,6 @@ namespace Jegymester.Services
             await _context.SaveChangesAsync();
             return _mapper.Map<TicketDto>(ticket);
         }
-
         public async Task<bool> DeleteAsync(int id)
         {
             var ticket = await _context.Tickets.Include(t => t.Screenings).FirstOrDefaultAsync(t => t.Id == id);
@@ -81,38 +79,6 @@ namespace Jegymester.Services
             {
                 throw new TimeoutException("Can't delete ticket within 4 hours of screening!");
             }
-        }
-
-        public async Task<TicketDto> CreateAsync(TicketCreateDto dto)
-        {
-            var screening = await _context.Screenings
-                .Include(s => s.Movie)
-                .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
-            if (screening == null)
-                throw new ArgumentException("Screening not found.");
-
-            var seat = await _context.Seats.FindAsync(dto.SeatId);
-            if (seat == null || seat.IsOccupied)
-                throw new InvalidOperationException("Seat is not available.");
-
-            var ticket = new Ticket
-            {
-                ScreeningId = dto.ScreeningId,
-                SeatId = dto.SeatId,
-                UserId = dto.UserId,
-                TicketType = dto.TicketType,
-                Price = dto.Price,
-                PurchaseDate = dto.PurchaseDate,
-                ScreeningTime = screening.StartTime,
-                Title = screening.Movie.Title
-
-            };
-
-            _context.Tickets.Add(ticket);
-            seat.IsOccupied = true;
-            await _context.SaveChangesAsync();
-
-            return _mapper.Map<TicketDto>(ticket);
-        }
+        } 
     }
 }
