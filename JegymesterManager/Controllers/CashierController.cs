@@ -17,21 +17,14 @@ namespace Jegymester.Controllers
         }
 
         [HttpPost("PurchaseGuest")]
-        public async Task<IActionResult> PurchaseTicketForGuest([FromBody] CashierTicketPurchaseDto guestDto)
+        public async Task<ActionResult<BookingDto>> CreateCashierBooking([FromBody] CashierBookingDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             try
             {
-                var ticket = await _cashierService.PurchaseTicketForGuestAsync(guestDto);
-                return Ok(ticket);
+                var result = await _cashierService.PurchaseBookingForCustomerAsync(dto);
+                return Ok(result);
             }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

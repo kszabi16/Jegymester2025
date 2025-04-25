@@ -9,8 +9,8 @@ namespace Jegymester.Services
 {
     public interface ICashierService
     {
-       
-        Task<TicketDto> PurchaseTicketForGuestAsync(CashierTicketPurchaseDto guestDto);
+
+        Task<BookingDto> PurchaseBookingForCustomerAsync(CashierBookingDto dto);
         Task<bool> ValidateTicketAsync(int ticketId);
     }
 
@@ -25,37 +25,65 @@ namespace Jegymester.Services
             _context = context;
         }
 
-        public async Task<TicketDto> PurchaseTicketForGuestAsync(CashierTicketPurchaseDto guestDto)
+        public async Task<BookingDto> PurchaseBookingForCustomerAsync(CashierBookingDto dto)
         {
-            var seat = await _context.Seats.FindAsync(guestDto.SeatId);
-            if (seat == null || seat.IsOccupied)
-                throw new InvalidOperationException("Seat is not available.");
             var screening = await _context.Screenings
                 .Include(s => s.Movie)
-                .FirstOrDefaultAsync(s => s.Id == guestDto.ScreeningId);
+                .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
+
             if (screening == null)
                 throw new InvalidOperationException("Invalid screening ID.");
 
-            await _context.SaveChangesAsync();
+            if (dto.SeatIds == null || !dto.SeatIds.Any())
+                throw new InvalidOperationException("At least one seat must be selected.");
 
-            var ticket = new Ticket
+            var tickets = new List<Ticket>();
+
+            foreach (var seatId in dto.SeatIds)
             {
-                ScreeningId = guestDto.ScreeningId,
-                SeatId = guestDto.SeatId,
-                UserId = guestDto.UserId,
-                TicketType = guestDto.TicketType,
-                Price = guestDto.Price,
-                PurchaseDate = DateTime.UtcNow,
-                ScreeningTime = screening.StartTime,
-                Title = screening.Movie.Title
+                var seat = await _context.Seats.FindAsync(seatId);
+                if (seat == null || seat.IsOccupied)
+                    throw new InvalidOperationException($"Seat {seatId} is not available.");
+
+                if (seat.RoomId != screening.RoomId)
+                    throw new InvalidOperationException($"Seat {seatId} is not in the same room as the screening.");
+
+                seat.IsOccupied = true;
+
+                tickets.Add(new Ticket
+                {
+                    ScreeningId = dto.ScreeningId,
+                    SeatId = seatId,
+                    UserId = dto.UserId,
+                    TicketType = dto.TicketType,
+                    Price = dto.Price,
+                    PurchaseDate = DateTime.UtcNow,
+                    ScreeningTime = screening.StartTime,
+                });
+            }
+
+            var booking = new Booking
+            {
+                BuyDate = DateTime.UtcNow,
+                Quantity = tickets.Count,
+                UserId = dto.UserId ?? 0,
+                Tickets = tickets
             };
 
-            seat.IsOccupied = true;
+            
+            if (dto.UserId == null)
+            {
+                Console.WriteLine($"Guest booking by cashier. Email: {dto.Email ?? "N/A"}, Phone: {dto.PhoneNumber ?? "N/A"}");
+            }
+            else
+            {
+                Console.WriteLine($"Registered user booking by cashier. UserId: {dto.UserId}");
+            }
 
-            _context.Tickets.Add(ticket);
+            _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<TicketDto>(ticket);
+            return _mapper.Map<BookingDto>(booking);
         }
 
         public async Task<bool> ValidateTicketAsync(int ticketId)
