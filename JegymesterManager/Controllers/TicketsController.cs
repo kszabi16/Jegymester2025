@@ -9,11 +9,13 @@ using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
 using Jegymester.Services;
 using Jegymester.DataContext.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JegymesterManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TicketsController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -41,10 +43,10 @@ namespace JegymesterManager.Controllers
 
             return Ok(ticket);
         }
-        [HttpPost("CreateTicket")]
         
 
         [HttpPut("UpdateTicket/{id}")]
+        [Authorize(Roles = "Cashier,Admin")]
         public async Task<ActionResult<TicketDto>> UpdateTicket(int id, [FromBody] TicketUpdateDto ticketDto)
         {
             if (ticketDto == null)
@@ -58,6 +60,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpDelete("DeleteTicket{id}")]
+        [Authorize(Roles = "Cashier,Admin")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
             var result = await _ticketService.DeleteAsync(id);

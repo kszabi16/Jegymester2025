@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using BCrypt.Net;
 using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
+using System.Globalization;
 
 namespace Jegymester.Services
 {
@@ -21,7 +22,7 @@ namespace Jegymester.Services
     {
         Task<UserDto> RegisterCustomerAsync(RegisterUserDto userDto);
         Task<UserDto> RegisterWithRolesAsync(RegisterWithRolesDto userDto);
-        Task<UserDto> LoginAsync(UserLoginDto loginDto);
+        Task<string> LoginAsync(UserLoginDto loginDto);
         Task<UserDto> UpdateUserAsync(int userId, UserUpdateDto updateDto);
         Task<List<TicketDto>> GetUserTicketsAsync(int userId);
     }
@@ -30,12 +31,13 @@ namespace Jegymester.Services
     {
         private readonly JegymesterDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public UserService(JegymesterDbContext context, IMapper mapper)
+        public UserService(JegymesterDbContext context, IMapper mapper, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
-            EnsureRolesExistAsync().GetAwaiter().GetResult(); 
+            _configuration = configuration;
         }
 
         public async Task<UserDto> RegisterCustomerAsync(RegisterUserDto userDto)
@@ -98,7 +100,7 @@ namespace Jegymester.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<UserDto> LoginAsync(UserLoginDto loginDto)
+        public async Task<string> LoginAsync(UserLoginDto loginDto)
         {
             var user = await _context.Users
                 .Include(u => u.Roles)
@@ -107,7 +109,39 @@ namespace Jegymester.Services
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid email or password.");
 
-            return _mapper.Map<UserDto>(user);
+            return await GenerateToken(user);
+        }
+
+        private async Task<string> GenerateToken(User user)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["Jwt:ExpireDays"]));
+
+            var id = await GetClaimsIdentity(user);
+            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], id.Claims, expires: expires, signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private async Task<ClaimsIdentity> GetClaimsIdentity(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name), 
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.AuthTime, DateTime.Now.ToString(CultureInfo.InvariantCulture))
+            };
+
+            if (user.Roles != null && user.Roles.Any())
+            {
+                claims.AddRange(user.Roles.Select(role => new Claim("roleIds", Convert.ToString(role.Id))));
+                claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
+            }
+
+            return new ClaimsIdentity(claims, "Token");
         }
         public async Task<List<TicketDto>> GetUserTicketsAsync(int userId)
         {
@@ -140,25 +174,14 @@ namespace Jegymester.Services
 
         private async Task<Role> GetDefaultCustomerRoleAsync()
         {
-            return await _context.Roles
-                .FirstOrDefaultAsync(r => r.Name == "User");
-        }
-
-        private async Task EnsureRolesExistAsync()
-        {
-            if (!await _context.Roles.AnyAsync(r => r.Name == "User"))
+            var customerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
+            if (customerRole == null)
             {
-                _context.Roles.Add(new Role { Name = "User" });
+                customerRole = new Role { Name = "Customer" };
+                await _context.Roles.AddAsync(customerRole);
+                await _context.SaveChangesAsync();
             }
-            if (!await _context.Roles.AnyAsync(r => r.Name == "Admin"))
-            {
-                _context.Roles.Add(new Role { Name = "Admin" });
-            }
-            if (!await _context.Roles.AnyAsync(r => r.Name == "Cashier"))
-            {
-                _context.Roles.Add(new Role { Name = "Cashier" });
-            }
-            await _context.SaveChangesAsync();
+            return customerRole;
         }
     }
 }

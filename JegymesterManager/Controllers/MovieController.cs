@@ -9,11 +9,13 @@ using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
 using Jegymester.Services;
 using Jegymester.DataContext.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JegymesterManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
@@ -24,6 +26,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpGet("GetAllMovie")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
             var movies = await _movieService.GetAllMoviesAsync();
@@ -31,6 +34,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpGet("GetById")]
+        [AllowAnonymous]
         public async Task<ActionResult<Movie>> GetMovie(int id)
         {
             var movie = await _movieService.GetMovieByIdAsync(id);
@@ -42,6 +46,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpPost("CreateMovie")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Movie>> CreateMovie(MovieCreateDto movieDto)
         {
             var createdMovie = await _movieService.CreateMovieAsync(movieDto);
@@ -49,6 +54,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpPut("UpdateMovie")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateMovie(int id, MovieUpdateDto movieDto)
         {
 
@@ -62,6 +68,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpDelete("DeleteMovie")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
             var movie = await _movieService.GetMovieByIdAsync(id);

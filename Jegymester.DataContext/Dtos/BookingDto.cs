@@ -19,7 +19,7 @@ namespace Jegymester.DataContext.Dtos
     {
         public int UserId { get; set; }
         public int ScreeningId { get; set; }
-        public List<int> SeatId { get; set; }
+        public List<int> SeatId { get; set; }   
         public string TicketType { get; set; }
         public decimal Price { get; set; }
     }

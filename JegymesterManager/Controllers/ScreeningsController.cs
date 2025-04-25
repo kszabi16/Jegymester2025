@@ -9,11 +9,13 @@ using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
 using Jegymester.Services;
 using Jegymester.DataContext.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JegymesterManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ScreeningsController : ControllerBase
     {
         private readonly IScreeningService _screeningService;
@@ -23,16 +25,18 @@ namespace JegymesterManager.Controllers
             _screeningService = screeningService;
         }
 
-        // GET api/screenings
+        
         [HttpGet("GetAllScreenings")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ScreeningDto>>> GetScreenings()
         {
             var screenings = await _screeningService.GetAllAsync();
             return Ok(screenings);
         }
 
-        // GET api/screenings/{id}
+        
         [HttpGet("GetScreeningById/{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ScreeningDto>> GetScreening(int id)
         {
             var screening = await _screeningService.GetByIdAsync(id);
@@ -45,8 +49,9 @@ namespace JegymesterManager.Controllers
             return Ok(screening);
         }
 
-        // POST api/screenings
+        
         [HttpPost("CreateScreening")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ScreeningDto>> CreateScreening([FromBody] ScreeningCreateDto screeningDto)
         {
             var createdScreening = await _screeningService.CreateAsync(screeningDto);
@@ -54,8 +59,9 @@ namespace JegymesterManager.Controllers
         }
 
 
-        // PUT api/screenings/{id}
+        
         [HttpPut("UpdateScreening/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateScreening(int id, [FromBody] ScreeningUpdateDto screeningDto)
         {
             if (screeningDto == null)
@@ -72,8 +78,9 @@ namespace JegymesterManager.Controllers
             return Ok(updated);
         }
 
-        // DELETE api/screenings/{id}
+        
         [HttpDelete("DeleteScreening/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteScreening(int id)
         {
             var success = await _screeningService.DeleteAsync(id);

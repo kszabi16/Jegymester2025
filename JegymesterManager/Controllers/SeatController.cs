@@ -1,12 +1,13 @@
 ﻿using Jegymester.DataContext.Dtos;
 using Jegymester.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JegymesterManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+    [Authorize(Roles = "Admin")]
     public class SeatController : ControllerBase
     {
         private readonly ISeatService _seatService;

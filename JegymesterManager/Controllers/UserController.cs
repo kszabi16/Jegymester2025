@@ -9,11 +9,14 @@ using Jegymester.DataContext.Context;
 using Jegymester.DataContext.Entities;
 using Jegymester.Services;
 using Jegymester.DataContext.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JegymesterManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -24,12 +27,14 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpPost("RegisterCustomer")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterUserDto userDto)
         {
             var result = await _userService.RegisterCustomerAsync(userDto);
             return Ok(result);
         }
         [HttpPost("RegisterWithRoles")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterWithRolesAsync(RegisterWithRolesDto userDto)
         {
             var result = await _userService.RegisterWithRolesAsync(userDto);
@@ -37,6 +42,7 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpPost("LoginUser")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(UserLoginDto userDto)
         {
             var token = await _userService.LoginAsync(userDto);
@@ -44,14 +50,17 @@ namespace JegymesterManager.Controllers
         }
 
         [HttpPut("UpdateProfile")]
-        public async Task<IActionResult> UpdateProfile(int userId, UserUpdateDto userDto)
+        public async Task<IActionResult> UpdateProfile(UserUpdateDto userDto)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
             var result = await _userService.UpdateUserAsync(userId, userDto);
             return Ok(result);
         }
+
         [HttpGet("GetUserTickets")]
-        public async Task<IActionResult> GetUserTickets(int userId)
+        public async Task<IActionResult> GetUserTickets()
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
             var tickets = await _userService.GetUserTicketsAsync(userId);
             return Ok(tickets);
         }

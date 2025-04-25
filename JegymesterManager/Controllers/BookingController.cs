@@ -1,11 +1,13 @@
 ﻿using Jegymester.DataContext.Dtos;
 using Jegymester.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JegymesterManager.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -29,6 +31,7 @@ namespace JegymesterManager.Controllers
             }
         }
         [HttpPost("guest")]
+        [AllowAnonymous]
         public async Task<ActionResult<BookingDto>> GuestCreateBooking([FromBody] CreateGuestBookingDto dto)
         {
             try

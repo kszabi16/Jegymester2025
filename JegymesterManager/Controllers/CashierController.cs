@@ -1,5 +1,6 @@
 ﻿using Jegymester.DataContext.Dtos;
 using Jegymester.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace Jegymester.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Cashier")]
     public class CashierController : ControllerBase
     {
         private readonly ICashierService _cashierService;
