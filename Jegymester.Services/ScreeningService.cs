@@ -81,6 +81,7 @@ namespace Jegymester.Services
             }
 
             screening.Deleted = true;
+            _context.Screenings.Update(screening);
             await _context.SaveChangesAsync();
             return true;
         }

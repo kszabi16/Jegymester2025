@@ -58,7 +58,6 @@ namespace Jegymester.Services
 
             ticket.TicketType = dto.TicketType;
             ticket.Price = dto.Price;
-            ticket.PurchaseDate = dto.PurchaseDate;
 
             await _context.SaveChangesAsync();
             return _mapper.Map<TicketDto>(ticket);
@@ -74,6 +73,7 @@ namespace Jegymester.Services
             if (ticket.Screenings.StartTime.AddHours(-4) >= DateTime.UtcNow)
             {
                 ticket.Deleted = true;
+                _context.Tickets.Update(ticket);
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -102,7 +102,7 @@ namespace Jegymester.Services
                 UserId = dto.UserId,
                 TicketType = dto.TicketType,
                 Price = dto.Price,
-                PurchaseDate = dto.PurchaseDate,
+                PurchaseDate = DateTime.UtcNow,
                 ScreeningTime = screening.StartTime,
                 Title = screening.Movie.Title
 

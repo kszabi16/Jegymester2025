@@ -74,6 +74,7 @@ namespace Jegymester.Services
             }
 
             movie.Deleted = true;
+            _context.Movies.Update(movie);
             await _context.SaveChangesAsync();
             return true;
         }

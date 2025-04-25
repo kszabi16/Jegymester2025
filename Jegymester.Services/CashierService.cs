@@ -87,6 +87,7 @@ namespace Jegymester.Services
             }
 
             ticket.Deleted = true;
+            _context.Tickets.Update(ticket);
             await _context.SaveChangesAsync();
 
             return true;

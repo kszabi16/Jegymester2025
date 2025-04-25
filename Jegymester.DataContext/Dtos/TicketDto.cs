@@ -26,11 +26,6 @@ namespace Jegymester.DataContext.Dtos
     {
         [Required]
         public int ScreeningId { get; set; }
-
-        //[Required]
-        //[Range(1, 10)]
-        //public int TicketCount { get; set; }
-
         public int? UserId { get; set; } // null if guest purchase
 
         [EmailAddress]
@@ -43,7 +38,6 @@ namespace Jegymester.DataContext.Dtos
         public int SeatId { get; set; }
         public string TicketType { get; set; }
         public decimal Price { get; set; }
-        public DateTime PurchaseDate { get; set; }
     }
     public class ValidateTicketDto
     {
@@ -60,18 +54,13 @@ namespace Jegymester.DataContext.Dtos
 
         [Required]
         public int SeatId { get; set; }
-
         public string TicketType { get; set; }
-
         public decimal Price { get; set; }
-
-        public DateTime PurchaseDate { get; set; }
         public int? UserId { get; set; }
     }
     public class TicketUpdateDto
     {
         public string TicketType { get; set; }
         public decimal Price { get; set; }
-        public DateTime PurchaseDate { get; set; }
     }
 }
