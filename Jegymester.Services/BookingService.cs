@@ -38,11 +38,17 @@ namespace Jegymester.Services
             foreach (var seatId in dto.SeatId)
             {
                 var seat = await _context.Seats.FindAsync(seatId);
+
                 if (seat == null)
                     throw new Exception($"Seat doesn't exist: {seatId}");
 
                 if (seat.RoomId != screening.RoomId)
                     throw new InvalidOperationException($"Seat {seatId} is not in the same room as the screening.");
+
+                if (seat.IsOccupied)
+                    throw new InvalidOperationException($"Seat {seatId} is already occupied.");
+
+                seat.IsOccupied = true;
 
                 tickets.Add(new Ticket
                 {
@@ -83,11 +89,17 @@ namespace Jegymester.Services
             foreach (var seatId in dto.SeatIds)
             {
                 var seat = await _context.Seats.FindAsync(seatId);
+
                 if (seat == null)
                     throw new Exception($"Seat doesn't exist: {seatId}");
 
                 if (seat.RoomId != screening.RoomId)
                     throw new InvalidOperationException($"Seat {seatId} is not in the same room as the screening.");
+
+                if (seat.IsOccupied)
+                    throw new InvalidOperationException($"Seat {seatId} is already occupied.");
+
+                seat.IsOccupied = true;
 
                 tickets.Add(new Ticket
                 {

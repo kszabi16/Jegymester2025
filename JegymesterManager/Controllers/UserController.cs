@@ -34,7 +34,7 @@ namespace JegymesterManager.Controllers
             return Ok(result);
         }
         [HttpPost("RegisterWithRoles")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterWithRolesAsync(RegisterWithRolesDto userDto)
         {
             var result = await _userService.RegisterWithRolesAsync(userDto);
@@ -63,6 +63,24 @@ namespace JegymesterManager.Controllers
             var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
             var tickets = await _userService.GetUserTicketsAsync(userId);
             return Ok(tickets);
+        }
+        [HttpDelete("DeleteUser")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            try
+            {
+                await _userService.DeleteUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

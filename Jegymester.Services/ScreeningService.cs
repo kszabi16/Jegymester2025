@@ -34,13 +34,13 @@ namespace Jegymester.Services
 
         public async Task<IEnumerable<ScreeningDto>> GetAllAsync()
         {
-            var screenings = await _context.Screenings.ToListAsync();
+            var screenings = await _context.Screenings.Where(s => !s.Deleted).ToListAsync();
             return _mapper.Map<IEnumerable<ScreeningDto>>(screenings);
         }
 
         public async Task<ScreeningDto> GetByIdAsync(int id)
         {
-            var screening = await _context.Screenings.FindAsync(id);
+            var screening = await _context.Screenings.Where(s => !s.Deleted && s.Id == id).FirstOrDefaultAsync();
             if (screening == null)
             {
                 throw new KeyNotFoundException("Screening not found.");

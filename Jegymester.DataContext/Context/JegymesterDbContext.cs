@@ -15,7 +15,6 @@ namespace Jegymester.DataContext.Context
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<Seat> Seats { get; set; }
         public DbSet<Booking> Bookings { get; set; }
 
@@ -26,6 +25,14 @@ namespace Jegymester.DataContext.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+             .Property(u => u.Roles)
+             .HasConversion(
+                 v => string.Join(',', v),
+                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                       .Select(r => Enum.Parse<RoleType>(r))
+                       .ToList());
 
             modelBuilder.Entity<User>()
                 .Property(u => u.PasswordHash)
@@ -64,10 +71,7 @@ namespace Jegymester.DataContext.Context
                 .OnDelete(DeleteBehavior.Restrict); 
 
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Roles)
-                .WithMany(r => r.Users)
-                .UsingEntity(j => j.ToTable("UserRoles"));
+           
         }
     }
 }

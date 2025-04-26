@@ -42,11 +42,16 @@ namespace Jegymester.Services
             foreach (var seatId in dto.SeatIds)
             {
                 var seat = await _context.Seats.FindAsync(seatId);
-                if (seat == null || seat.IsOccupied)
+                if (seat == null)
                     throw new InvalidOperationException($"Seat {seatId} is not available.");
 
                 if (seat.RoomId != screening.RoomId)
                     throw new InvalidOperationException($"Seat {seatId} is not in the same room as the screening.");
+
+                if (seat.IsOccupied)
+                    throw new InvalidOperationException($"Seat {seatId} is already occupied.");
+
+                seat.IsOccupied = true;
 
                 seat.IsOccupied = true;
 

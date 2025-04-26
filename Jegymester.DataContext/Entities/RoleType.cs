@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Jegymester.DataContext.Entities
 {
-    //Szerepkör
-    public class Role : AbstractEntity
+    public enum RoleType
     {
-        public string Name { get; set; }
+        Admin = 1,
+        Cashier = 2,
+        Customer = 3,
 
-        public List<User> Users { get; set; }
     }
 }

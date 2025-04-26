@@ -10,11 +10,10 @@ namespace Jegymester.DataContext.Dtos
 {
   public  class UserDto 
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public IList<RoleDto> Roles { get; set; }
+        public List<string> Roles { get; set; }
     }
 
     public class RegisterUserDto
@@ -57,7 +56,7 @@ namespace Jegymester.DataContext.Dtos
         public string PhoneNumber { get; set; }
 
         [Required]
-        public IList<int> RoleIds { get; set; }
+        public List<RoleType> Roles { get; set; }
     }
     public class UserLoginDto
     {

@@ -25,6 +25,8 @@ namespace Jegymester.Services
         Task<string> LoginAsync(UserLoginDto loginDto);
         Task<UserDto> UpdateUserAsync(int userId, UserUpdateDto updateDto);
         Task<List<TicketDto>> GetUserTicketsAsync(int userId);
+        Task DeleteUserAsync(int userId);
+
     }
 
     public class UserService : IUserService
@@ -42,19 +44,12 @@ namespace Jegymester.Services
 
         public async Task<UserDto> RegisterCustomerAsync(RegisterUserDto userDto)
         {
-           
             if (await _context.Users.AnyAsync(u => u.Email == userDto.Email))
                 throw new InvalidOperationException("Email already exists.");
 
             var user = _mapper.Map<User>(userDto);
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
-
-            
-            var defaultRole = await GetDefaultCustomerRoleAsync();
-            if (defaultRole == null)
-                throw new InvalidOperationException("Default customer role not found.");
-
-            user.Roles = new List<Role> { defaultRole };
+            user.Roles = new List<RoleType> { RoleType.Customer };
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -64,35 +59,16 @@ namespace Jegymester.Services
 
         public async Task<UserDto> RegisterWithRolesAsync(RegisterWithRolesDto userDto)
         {
-            
             if (await _context.Users.AnyAsync(u => u.Email == userDto.Email))
                 throw new InvalidOperationException("Email already exists.");
+
+            if (userDto.Roles == null)
+                throw new ArgumentException("Role must be provided for this registration type.");
 
             var user = _mapper.Map<User>(userDto);
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
 
-            List<Role> rolesToAssign = new List<Role>();
-
-            if (userDto.RoleIds != null && userDto.RoleIds.Any())
-            {
-                Console.WriteLine($"RoleIds: {string.Join(", ", userDto.RoleIds)}"); 
-                rolesToAssign = await _context.Roles
-                    .Where(r => userDto.RoleIds.Contains(r.Id))
-                    .ToListAsync();
-
-                if (rolesToAssign.Count != userDto.RoleIds.Count)
-                {
-                    var foundRoleIds = rolesToAssign.Select(r => r.Id).ToList();
-                    var missingRoleIds = userDto.RoleIds.Except(foundRoleIds).ToList();
-                    throw new KeyNotFoundException($"One or more roles not found. Missing RoleIds: {string.Join(", ", missingRoleIds)}");
-                }
-            }
-            else
-            {
-                throw new ArgumentException("RoleIds must be provided for this registration type.");
-            }
-
-            user.Roles = rolesToAssign;
+            user.Roles = userDto.Roles; // << Enum érték
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -103,7 +79,6 @@ namespace Jegymester.Services
         public async Task<string> LoginAsync(UserLoginDto loginDto)
         {
             var user = await _context.Users
-                .Include(u => u.Roles)
                 .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
@@ -127,22 +102,17 @@ namespace Jegymester.Services
         private async Task<ClaimsIdentity> GetClaimsIdentity(User user)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name), 
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.AuthTime, DateTime.Now.ToString(CultureInfo.InvariantCulture))
-            };
-
-            if (user.Roles != null && user.Roles.Any())
-            {
-                claims.AddRange(user.Roles.Select(role => new Claim("roleIds", Convert.ToString(role.Id))));
-                claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
-            }
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.AuthTime, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
+        };
 
             return new ClaimsIdentity(claims, "Token");
         }
+
         public async Task<List<TicketDto>> GetUserTicketsAsync(int userId)
         {
             var tickets = await _context.Tickets
@@ -152,15 +122,14 @@ namespace Jegymester.Services
                 .ToListAsync();
             return _mapper.Map<List<TicketDto>>(tickets);
         }
+
         public async Task<UserDto> UpdateUserAsync(int userId, UserUpdateDto updateDto)
         {
             var user = await _context.Users
-                .Include(u => u.Roles)
                 .FirstOrDefaultAsync(u => u.Id == userId && !u.Deleted);
             if (user == null)
                 throw new KeyNotFoundException("User not found.");
 
-           
             if (user.Email != updateDto.Email && await _context.Users.AnyAsync(u => u.Email == updateDto.Email))
                 throw new InvalidOperationException("Email already exists.");
 
@@ -172,16 +141,23 @@ namespace Jegymester.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        private async Task<Role> GetDefaultCustomerRoleAsync()
+        public async Task DeleteUserAsync(int userId)
         {
-            var customerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
-            if (customerRole == null)
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
             {
-                customerRole = new Role { Name = "Customer" };
-                await _context.Roles.AddAsync(customerRole);
-                await _context.SaveChangesAsync();
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
             }
-            return customerRole;
+
+            if (user.Deleted)
+            {
+                throw new InvalidOperationException($"User with ID {userId} is already deleted.");
+            }
+
+            user.Deleted = true;
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,6 +1,7 @@
 using Jegymester.DataContext;
 using Jegymester.DataContext.Context;
 using Jegymester.Services;
+using Jegymester.Services.BackgroundServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +29,9 @@ builder.Services.AddScoped<ISeatService, SeatService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<ISeatService, SeatService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+
+builder.Services.AddHostedService<SeatReleaseService>();
+
 
 // Authentication and Authorization
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims

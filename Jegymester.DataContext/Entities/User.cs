@@ -17,6 +17,6 @@ namespace Jegymester.DataContext.Entities
 
         //Kapcsolatok
         public List<Booking> Bookings { get; set; } = new List<Booking>();
-        public List<Role> Roles { get; set; } = new List<Role>();
+        public List<RoleType> Roles { get; set; } 
     }
 }
