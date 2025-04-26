@@ -29,11 +29,13 @@ namespace Jegymester.Services
 
         public async Task<BookingDto> UserCreateBookingAsync(CreateUserBookingDto dto)
         {
-            var screening = await _context.Screenings.FindAsync(dto.ScreeningId);
-            if (screening == null)
-                throw new Exception("Screening not Found");
+            var screening = await _context.Screenings.Include(s => s.Movie).FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
+            if (screening == null || screening.Deleted)
+                throw new InvalidOperationException("Screening not found.");
 
-
+            var screeningEndTime = screening.StartTime.AddMinutes(screening.Movie.Length);
+            if (DateTime.Now > screeningEndTime)
+                throw new InvalidOperationException("You can't book tickets to this screening anymore.");
 
             var tickets = new List<Ticket>();
             foreach (var seatId in dto.SeatId)
@@ -82,9 +84,16 @@ namespace Jegymester.Services
             if (string.IsNullOrEmpty(dto.Email) && string.IsNullOrEmpty(dto.PhoneNumber))
                 throw new Exception("Email or Phone is required.");
 
-            var screening = await _context.Screenings.FindAsync(dto.ScreeningId);
-            if (screening == null)
-                throw new Exception("Screening not Found.");
+            var screening = await _context.Screenings
+           .Include(s => s.Movie)
+           .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
+
+            if (screening == null || screening.Deleted)
+                throw new InvalidOperationException("Screening not found.");
+
+            var screeningEndTime = screening.StartTime.AddMinutes(screening.Movie.Length);
+            if (DateTime.Now > screeningEndTime)
+                throw new InvalidOperationException("You can't book tickets to this screening anymore.");
 
             var tickets = new List<Ticket>();
 

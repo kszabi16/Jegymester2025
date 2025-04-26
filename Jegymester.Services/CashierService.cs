@@ -31,8 +31,12 @@ namespace Jegymester.Services
                 .Include(s => s.Movie)
                 .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
 
-            if (screening == null)
-                throw new InvalidOperationException("Invalid screening ID.");
+            if (screening == null || screening.Deleted)
+                throw new InvalidOperationException("Screening not found.");
+
+            var screeningEndTime = screening.StartTime.AddMinutes(screening.Movie.Length);
+            if (DateTime.Now > screeningEndTime)
+                throw new InvalidOperationException("You can't book tickets to this screening anymore.");
 
             if (dto.SeatIds == null || !dto.SeatIds.Any())
                 throw new InvalidOperationException("At least one seat must be selected.");
@@ -53,8 +57,6 @@ namespace Jegymester.Services
 
                 seat.IsOccupied = true;
 
-                seat.IsOccupied = true;
-
                 tickets.Add(new Ticket
                 {
                     ScreeningId = dto.ScreeningId,
@@ -62,14 +64,14 @@ namespace Jegymester.Services
                     UserId = dto.UserId,
                     TicketType = dto.TicketType,
                     Price = TicketPricing.GetPrice(dto.TicketType),
-                    PurchaseDate = DateTime.UtcNow,
+                    PurchaseDate = DateTime.Now,
                     ScreeningTime = screening.StartTime,
                 });
             }
 
             var booking = new Booking
             {
-                BuyDate = DateTime.UtcNow,
+                BuyDate = DateTime.Now,
                 Quantity = tickets.Count,
                 UserId = dto.UserId ?? 0,
                 Tickets = tickets,
@@ -114,7 +116,7 @@ namespace Jegymester.Services
                 return false;
             }
 
-            if (screening.StartTime <= DateTime.UtcNow)
+            if (screening.StartTime <= DateTime.Now)
             {
                 Console.WriteLine($"Screening has already started: {screening.StartTime}");
                 return false;
