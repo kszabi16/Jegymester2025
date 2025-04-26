@@ -10,7 +10,7 @@ namespace Jegymester.DataContext.Entities
     public class Booking : AbstractEntity
     {
         public DateTime BuyDate { get; set; }
-
+        public decimal TotalPrice { get; set; }
         public int Quantity { get; set; }
 
         //Kapcsolatok

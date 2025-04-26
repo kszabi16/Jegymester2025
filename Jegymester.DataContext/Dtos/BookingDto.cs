@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Jegymester.DataContext.Entities;
+using Jegymester.DataContext.Migrations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TicketType = Jegymester.DataContext.Entities.TicketType;
 
 namespace Jegymester.DataContext.Dtos
 {
@@ -13,6 +16,7 @@ namespace Jegymester.DataContext.Dtos
         public int Quantity { get; set; }
         public int UserId { get; set; }
         public List<TicketDto> Tickets { get; set; }
+        public decimal TotalPrice { get; set; }
     }
 
     public class CreateUserBookingDto
@@ -20,8 +24,7 @@ namespace Jegymester.DataContext.Dtos
         public int UserId { get; set; }
         public int ScreeningId { get; set; }
         public List<int> SeatId { get; set; }   
-        public string TicketType { get; set; }
-        public decimal Price { get; set; }
+        public TicketType TicketType { get; set; }
     }
     public class CreateGuestBookingDto
     {
@@ -30,8 +33,7 @@ namespace Jegymester.DataContext.Dtos
 
         public int ScreeningId { get; set; }
         public List<int> SeatIds { get; set; }
-        public string TicketType { get; set; }
-        public decimal Price { get; set; }
+        public TicketType TicketType { get; set; }
     }
     public class CashierBookingDto
     {
@@ -40,8 +42,7 @@ namespace Jegymester.DataContext.Dtos
         public string? PhoneNumber { get; set; }
 
         public int ScreeningId { get; set; }
-        public string TicketType { get; set; }
-        public decimal Price { get; set; }
+        public TicketType TicketType { get; set; }
         public List<int> SeatIds{ get; set; }
     }
 

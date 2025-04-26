@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Sockets;
 
 namespace Jegymester.Services
 {
@@ -52,7 +53,7 @@ namespace Jegymester.Services
 
                 tickets.Add(new Ticket
                 {
-                    Price = dto.Price,
+                    Price = TicketPricing.GetPrice(dto.TicketType),
                     TicketType = dto.TicketType,
                     ScreeningId = dto.ScreeningId,
                     SeatId = seatId,
@@ -67,7 +68,8 @@ namespace Jegymester.Services
                 UserId = dto.UserId,
                 BuyDate = DateTime.Now,
                 Quantity = tickets.Count,
-                Tickets = tickets
+                Tickets = tickets,
+                TotalPrice = tickets.Sum(t => t.Price)
             };
 
             _context.Bookings.Add(booking);
@@ -89,6 +91,7 @@ namespace Jegymester.Services
             foreach (var seatId in dto.SeatIds)
             {
                 var seat = await _context.Seats.FindAsync(seatId);
+                
 
                 if (seat == null)
                     throw new Exception($"Seat doesn't exist: {seatId}");
@@ -103,8 +106,8 @@ namespace Jegymester.Services
 
                 tickets.Add(new Ticket
                 {
-                    Price = dto.Price,
                     TicketType = dto.TicketType,
+                    Price = TicketPricing.GetPrice(dto.TicketType),
                     ScreeningId = dto.ScreeningId,
                     SeatId = seatId,
                     PurchaseDate = DateTime.Now,
@@ -117,7 +120,8 @@ namespace Jegymester.Services
                 BuyDate = DateTime.Now,
                 Quantity = tickets.Count,
                 Tickets = tickets,
-               
+                TotalPrice = tickets.Sum(t => t.Price)
+
             };
 
             Console.WriteLine($"Guest purchase - Email: {dto.Email}, Phone: {dto.PhoneNumber}");

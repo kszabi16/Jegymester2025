@@ -45,6 +45,10 @@ namespace Jegymester.DataContext.Context
                 .HasPrecision(18, 4);
 
             modelBuilder.Entity<Ticket>()
+                .Property(t => t.TicketType)
+                .HasConversion<int>();
+
+            modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Screenings)
                 .WithMany(s => s.Tickets)
                 .HasForeignKey(t => t.ScreeningId)

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+﻿using Jegymester.DataContext.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +15,7 @@ namespace Jegymester.DataContext.Dtos
         public bool Deleted { get; set; }
         public int ScreeningId { get; set; }
         public DateTime ScreeningTime { get; set; }
-        public string TicketType { get; set; }
+        public TicketType TicketType { get; set; }
         public decimal Price { get; set; }
         public DateTime PurchaseDate { get; set; }
     }
@@ -35,7 +36,7 @@ namespace Jegymester.DataContext.Dtos
         [Required]
         public string Name { get; set; }
         public int SeatId { get; set; }
-        public string TicketType { get; set; }
+        public TicketType TicketType { get; set; }
         public decimal Price { get; set; }
     }
     public class ValidateTicketDto
@@ -48,7 +49,7 @@ namespace Jegymester.DataContext.Dtos
     }
     public class TicketUpdateDto
     {
-        public string TicketType { get; set; }
+        public TicketType TicketType { get; set; }
         public decimal Price { get; set; }
     }
 }

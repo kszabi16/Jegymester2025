@@ -61,7 +61,7 @@ namespace Jegymester.Services
                     SeatId = seatId,
                     UserId = dto.UserId,
                     TicketType = dto.TicketType,
-                    Price = dto.Price,
+                    Price = TicketPricing.GetPrice(dto.TicketType),
                     PurchaseDate = DateTime.UtcNow,
                     ScreeningTime = screening.StartTime,
                 });
@@ -72,7 +72,8 @@ namespace Jegymester.Services
                 BuyDate = DateTime.UtcNow,
                 Quantity = tickets.Count,
                 UserId = dto.UserId ?? 0,
-                Tickets = tickets
+                Tickets = tickets,
+                TotalPrice = tickets.Sum(t => t.Price)
             };
 
             
