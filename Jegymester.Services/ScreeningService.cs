@@ -50,6 +50,14 @@ namespace Jegymester.Services
 
         public async Task<ScreeningDto> CreateAsync(ScreeningCreateDto dto)
         {
+            var movie = await _context.Movies.FindAsync(dto.MovieId);
+            if (movie == null)
+            {
+                throw new KeyNotFoundException("Movie not found.");
+            }
+
+            await EnsureScreeningTimeIsAvailableAsync(dto.RoomId, dto.StartTime, movie.Length);
+
             var screening = _mapper.Map<Screening>(dto);
             _context.Screenings.Add(screening);
             await _context.SaveChangesAsync();
@@ -63,6 +71,14 @@ namespace Jegymester.Services
             {
                 throw new KeyNotFoundException("Screening not found.");
             }
+
+            var movie = await _context.Movies.FindAsync(dto.MovieId);
+            if (movie == null)
+            {
+                throw new KeyNotFoundException("Movie not found.");
+            }
+
+            await EnsureScreeningTimeIsAvailableAsync(dto.RoomId, dto.StartTime, movie.Length, id);
 
             screening.MovieId = dto.MovieId;
             screening.StartTime = dto.StartTime;
@@ -84,6 +100,33 @@ namespace Jegymester.Services
             _context.Screenings.Update(screening);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private async Task EnsureScreeningTimeIsAvailableAsync(int roomId, DateTime newStartTime, int movieLength, int? excludeScreeningId = null)
+        {
+            var screenings = await _context.Screenings
+                .Include(s => s.Movie)
+                .Where(s => s.RoomId == roomId && !s.Deleted)
+                .ToListAsync();
+
+            var newEndTime = newStartTime.AddMinutes(movieLength);
+
+            foreach (var screening in screenings)
+            {
+                if (excludeScreeningId.HasValue && screening.Id == excludeScreeningId.Value)
+                {
+                    continue; // meglévő screeninget updatelsz, saját magát update-nél ne ellenőrizze mert igy az ütközne
+                }
+
+                var existingStart = screening.StartTime;
+                var existingEnd = screening.StartTime.AddMinutes(screening.Movie.Length);
+
+                bool isOverlapping = newStartTime < existingEnd && newEndTime > existingStart;
+                if (isOverlapping)
+                {
+                    throw new InvalidOperationException("Ebben az időpontban már van vetítés ebben a teremben.");
+                }
+            }
         }
     }
 
