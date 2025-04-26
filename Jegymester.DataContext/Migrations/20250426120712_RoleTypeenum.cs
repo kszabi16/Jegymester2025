@@ -10,10 +10,18 @@ namespace Jegymester.DataContext.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "UserRoles");
 
-            
+            migrationBuilder.DropTable(
+                name: "Roles");
 
-            
+            migrationBuilder.AddColumn<string>(
+                name: "Roles",
+                table: "Users",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
         }
 
         /// <inheritdoc />

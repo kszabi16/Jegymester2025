@@ -9,12 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.Security.Claims;
 
 namespace Jegymester.Services
 {
     public interface IBookingService
     {
-        Task<BookingDto> UserCreateBookingAsync(CreateUserBookingDto dto);
+        Task<BookingDto> UserCreateBookingAsync(int userId, CreateUserBookingDto dto);
         Task<BookingDto> GuestCreateBookingAsync(CreateGuestBookingDto dto);
     }
     public class BookingService : IBookingService
@@ -27,14 +28,14 @@ namespace Jegymester.Services
             _mapper = mapper;
         }
 
-        public async Task<BookingDto> UserCreateBookingAsync(CreateUserBookingDto dto)
+        public async Task<BookingDto> UserCreateBookingAsync(int userId, CreateUserBookingDto dto)
         {
             var screening = await _context.Screenings.Include(s => s.Movie).FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
             if (screening == null || screening.Deleted)
                 throw new InvalidOperationException("Screening not found.");
 
             var screeningEndTime = screening.StartTime.AddMinutes(screening.Movie.Length);
-            if (DateTime.Now > screeningEndTime)
+            if (DateTime.UtcNow > screeningEndTime)
                 throw new InvalidOperationException("You can't book tickets to this screening anymore.");
 
             var tickets = new List<Ticket>();
@@ -59,16 +60,16 @@ namespace Jegymester.Services
                     TicketType = dto.TicketType,
                     ScreeningId = dto.ScreeningId,
                     SeatId = seatId,
-                    PurchaseDate = DateTime.Now,
+                    PurchaseDate = DateTime.UtcNow,
                     ScreeningTime = screening.StartTime,
-                    UserId = dto.UserId
+                    UserId = userId
                 });
             }
 
             var booking = new Booking
             {
-                UserId = dto.UserId,
-                BuyDate = DateTime.Now,
+                UserId = userId,
+                BuyDate = DateTime.UtcNow,
                 Quantity = tickets.Count,
                 Tickets = tickets,
                 TotalPrice = tickets.Sum(t => t.Price)
@@ -92,7 +93,7 @@ namespace Jegymester.Services
                 throw new InvalidOperationException("Screening not found.");
 
             var screeningEndTime = screening.StartTime.AddMinutes(screening.Movie.Length);
-            if (DateTime.Now > screeningEndTime)
+            if (DateTime.UtcNow > screeningEndTime)
                 throw new InvalidOperationException("You can't book tickets to this screening anymore.");
 
             var tickets = new List<Ticket>();
@@ -119,14 +120,14 @@ namespace Jegymester.Services
                     Price = TicketPricing.GetPrice(dto.TicketType),
                     ScreeningId = dto.ScreeningId,
                     SeatId = seatId,
-                    PurchaseDate = DateTime.Now,
+                    PurchaseDate = DateTime.UtcNow,
                     ScreeningTime = screening.StartTime,
                 });
             }
 
             var booking = new Booking
             {
-                BuyDate = DateTime.Now,
+                BuyDate = DateTime.UtcNow,
                 Quantity = tickets.Count,
                 Tickets = tickets,
                 TotalPrice = tickets.Sum(t => t.Price)

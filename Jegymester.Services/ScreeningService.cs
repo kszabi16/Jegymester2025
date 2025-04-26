@@ -51,11 +51,16 @@ namespace Jegymester.Services
         public async Task<ScreeningDto> CreateAsync(ScreeningCreateDto dto)
         {
             var movie = await _context.Movies.FindAsync(dto.MovieId);
-            if (movie == null)
+            if (movie == null || movie.Deleted)
             {
                 throw new KeyNotFoundException("Movie not found.");
             }
 
+            var room = await _context.Rooms.FindAsync(dto.RoomId);
+            if (room == null || room.Deleted)
+            {
+                throw new KeyNotFoundException("Room not found.");
+            }
             await EnsureScreeningTimeIsAvailableAsync(dto.RoomId, dto.StartTime, movie.Length);
 
             var screening = _mapper.Map<Screening>(dto);
@@ -124,7 +129,7 @@ namespace Jegymester.Services
                 bool isOverlapping = newStartTime < existingEnd && newEndTime > existingStart;
                 if (isOverlapping)
                 {
-                    throw new InvalidOperationException("Ebben az időpontban már van vetítés ebben a teremben.");
+                    throw new InvalidOperationException("There is a screening in this room at this time already.");
                 }
             }
         }

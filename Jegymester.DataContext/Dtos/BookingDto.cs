@@ -21,7 +21,6 @@ namespace Jegymester.DataContext.Dtos
 
     public class CreateUserBookingDto
     {
-        public int UserId { get; set; }
         public int ScreeningId { get; set; }
         public List<int> SeatId { get; set; }   
         public TicketType TicketType { get; set; }

@@ -40,7 +40,7 @@ namespace Jegymester.Services
         public async Task<TicketDto> GetByIdAsync(int id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket == null)
+            if (ticket == null || ticket.Deleted)
             {
                 throw new KeyNotFoundException("Ticket not found.");
             }
@@ -50,13 +50,14 @@ namespace Jegymester.Services
         public async Task<TicketDto> UpdateAsync(int id, TicketUpdateDto dto)
         {
             var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket == null)
+            if (ticket == null || ticket.Deleted)
             {
                 throw new KeyNotFoundException("Ticket not found.");
             }
 
             ticket.TicketType = dto.TicketType;
-            ticket.Price = dto.Price;
+            ticket.ScreeningId = dto.ScreeningId;
+            ticket.Price = TicketPricing.GetPrice(dto.TicketType);
 
             await _context.SaveChangesAsync();
             return _mapper.Map<TicketDto>(ticket);
@@ -64,7 +65,7 @@ namespace Jegymester.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var ticket = await _context.Tickets.Include(t => t.Screenings).FirstOrDefaultAsync(t => t.Id == id);
-            if (ticket == null)
+            if (ticket == null || ticket.Deleted)
             {
                 throw new KeyNotFoundException("Ticket not found.");
             }

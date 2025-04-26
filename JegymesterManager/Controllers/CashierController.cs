@@ -8,7 +8,7 @@ namespace Jegymester.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Cashier")]
+    [Authorize(Roles = "Cashier, Admin")]
     public class CashierController : ControllerBase
     {
         private readonly ICashierService _cashierService;

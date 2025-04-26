@@ -2,6 +2,7 @@
 using Jegymester.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace JegymesterManager.Controllers
 {
@@ -22,7 +23,8 @@ namespace JegymesterManager.Controllers
         {
             try
             {
-                var result = await _bookingService.UserCreateBookingAsync(dto);
+                var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                var result = await _bookingService.UserCreateBookingAsync(userId, dto);
                 return Ok(result);
             }
             catch (Exception ex)

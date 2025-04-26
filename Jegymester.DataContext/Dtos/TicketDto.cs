@@ -12,7 +12,6 @@ namespace Jegymester.DataContext.Dtos
     public class TicketDto
     {
         public int Id { get; set; }
-        public bool Deleted { get; set; }
         public int ScreeningId { get; set; }
         public DateTime ScreeningTime { get; set; }
         public TicketType TicketType { get; set; }
@@ -49,6 +48,7 @@ namespace Jegymester.DataContext.Dtos
     }
     public class TicketUpdateDto
     {
+        public int ScreeningId { get; set; }
         public TicketType TicketType { get; set; }
         public decimal Price { get; set; }
     }

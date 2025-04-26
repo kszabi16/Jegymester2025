@@ -41,6 +41,13 @@ namespace Jegymester.DataContext.Context
                 .IsRequired();
 
             modelBuilder.Entity<Ticket>()
+                .Property(t => t.TicketType)
+                .HasConversion(
+                    v => v.ToString(), 
+                    v => (TicketType)Enum.Parse(typeof(TicketType), v) 
+                );
+
+            modelBuilder.Entity<Ticket>()
                 .Property(t => t.Price)
                 .HasPrecision(18, 4);
 

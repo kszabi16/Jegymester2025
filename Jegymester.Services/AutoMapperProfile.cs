@@ -43,7 +43,7 @@ namespace Jegymester.DataContext
                 .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));
 
             CreateMap<CreateUserBookingDto, Booking>()
-                .ForMember(dest => dest.BuyDate, opt => opt.MapFrom(_ => DateTime.Now))
+                .ForMember(dest => dest.BuyDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.SeatId.Count));
 
             CreateMap<CashierBookingDto, Booking>()

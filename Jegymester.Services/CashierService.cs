@@ -35,7 +35,7 @@ namespace Jegymester.Services
                 throw new InvalidOperationException("Screening not found.");
 
             var screeningEndTime = screening.StartTime.AddMinutes(screening.Movie.Length);
-            if (DateTime.Now > screeningEndTime)
+            if (DateTime.UtcNow > screeningEndTime)
                 throw new InvalidOperationException("You can't book tickets to this screening anymore.");
 
             if (dto.SeatIds == null || !dto.SeatIds.Any())
@@ -64,14 +64,14 @@ namespace Jegymester.Services
                     UserId = dto.UserId,
                     TicketType = dto.TicketType,
                     Price = TicketPricing.GetPrice(dto.TicketType),
-                    PurchaseDate = DateTime.Now,
+                    PurchaseDate = DateTime.UtcNow,
                     ScreeningTime = screening.StartTime,
                 });
             }
 
             var booking = new Booking
             {
-                BuyDate = DateTime.Now,
+                BuyDate = DateTime.UtcNow,
                 Quantity = tickets.Count,
                 UserId = dto.UserId ?? 0,
                 Tickets = tickets,
@@ -116,7 +116,7 @@ namespace Jegymester.Services
                 return false;
             }
 
-            if (screening.StartTime <= DateTime.Now)
+            if (screening.StartTime <= DateTime.UtcNow)
             {
                 Console.WriteLine($"Screening has already started: {screening.StartTime}");
                 return false;
