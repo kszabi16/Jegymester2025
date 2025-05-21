@@ -23,7 +23,29 @@ builder.Services.AddControllers()
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<JegymesterDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("JegymesterManagerContext")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("JegymesterManagerContext"),
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+        }));
+
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+
 
 // Dependency Injection for services
 builder.Services.AddScoped<IMovieService, MovieService>();
@@ -116,12 +138,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors(options =>
-{
-    options.AllowAnyMethod();
-    options.AllowAnyOrigin();
-    options.AllowAnyHeader();
-});
+
+app.UseCors("AllowFrontend");
 
 app.MapControllers();
 

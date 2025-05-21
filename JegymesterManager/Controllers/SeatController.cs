@@ -3,88 +3,91 @@ using Jegymester.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JegymesterManager.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class SeatController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "Admin")]
-    public class SeatController : ControllerBase
+    private readonly ISeatService _seatService;
+
+    public SeatController(ISeatService seatService)
     {
-        private readonly ISeatService _seatService;
+        _seatService = seatService;
+    }
 
-        public SeatController(ISeatService seatService)
+    // 🔓 Elérhető minden bejelentkezett felhasználónak
+    [Authorize]
+    [HttpGet("GetSeatsByRoomId/{roomId}")]
+    public async Task<IActionResult> GetSeatsByRoom(int roomId)
+    {
+        try
         {
-            _seatService = seatService;
+            var seats = await _seatService.GetSeatsByRoomAsync(roomId);
+            return Ok(seats);
         }
-
-        [HttpGet("GetSeatsByRoomId/{roomId}")]
-        public async Task<IActionResult> GetSeatsByRoom(int roomId)
+        catch (KeyNotFoundException ex)
         {
-            try
-            {
-                var seats = await _seatService.GetSeatsByRoomAsync(roomId);
-                return Ok(seats);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return NotFound(ex.Message);
         }
+    }
 
-        [HttpGet("GetSeatById/{seatId}")]
-        public async Task<IActionResult> GetSeatById(int seatId)
+    [Authorize]
+    [HttpGet("GetSeatById/{seatId}")]
+    public async Task<IActionResult> GetSeatById(int seatId)
+    {
+        try
         {
-            try
-            {
-                var seat = await _seatService.GetSeatByIdAsync(seatId);
-                return Ok(seat);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var seat = await _seatService.GetSeatByIdAsync(seatId);
+            return Ok(seat);
         }
-
-        [HttpPost("CreateSeat")]
-        public async Task<IActionResult> CreateSeat([FromBody] SeatCreateDto createDto)
+        catch (KeyNotFoundException ex)
         {
-            try
-            {
-                var seat = await _seatService.CreateSeatAsync(createDto);
-                return CreatedAtAction(nameof(GetSeatById), new { seatId = seat.Id }, seat);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return NotFound(ex.Message);
         }
+    }
 
-        [HttpPut("UpdateSeat/{seatId}")]
-        public async Task<IActionResult> UpdateSeat(int seatId, [FromBody] SeatUpdateDto updateDto)
+    // 🔐 Csak adminoknak engedélyezett végpontok
+    [Authorize(Roles = "Admin")]
+    [HttpPost("CreateSeat")]
+    public async Task<IActionResult> CreateSeat([FromBody] SeatCreateDto createDto)
+    {
+        try
         {
-            try
-            {
-                var seat = await _seatService.UpdateSeatAsync(seatId, updateDto);
-                return Ok(seat);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var seat = await _seatService.CreateSeatAsync(createDto);
+            return CreatedAtAction(nameof(GetSeatById), new { seatId = seat.Id }, seat);
         }
-
-        [HttpDelete("DeleteSeat/{seatId}")]
-        public async Task<IActionResult> DeleteSeat(int seatId)
+        catch (KeyNotFoundException ex)
         {
-            try
-            {
-                await _seatService.DeleteSeatAsync(seatId);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return NotFound(ex.Message);
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("UpdateSeat/{seatId}")]
+    public async Task<IActionResult> UpdateSeat(int seatId, [FromBody] SeatUpdateDto updateDto)
+    {
+        try
+        {
+            var seat = await _seatService.UpdateSeatAsync(seatId, updateDto);
+            return Ok(seat);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("DeleteSeat/{seatId}")]
+    public async Task<IActionResult> DeleteSeat(int seatId)
+    {
+        try
+        {
+            await _seatService.DeleteSeatAsync(seatId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
         }
     }
 }

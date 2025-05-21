@@ -47,5 +47,14 @@ namespace JegymesterManager.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            var bookings = await _bookingService.GetAllBookingsAsync();
+            return Ok(bookings);
+        }
+
+
     }
 }

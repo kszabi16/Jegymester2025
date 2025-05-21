@@ -3,79 +3,81 @@ using Jegymester.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JegymesterManager.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class RoomController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "Admin")]
-    public class RoomController : ControllerBase
+    private readonly IRoomService _roomService;
+
+    public RoomController(IRoomService roomService)
     {
-        private readonly IRoomService _roomService;
+        _roomService = roomService;
+    }
 
-        public RoomController(IRoomService roomService)
+    // 🔓 Minden bejelentkezett felhasználónak (Admin + Customer)
+    [Authorize]
+    [HttpGet("GetAllRooms")]
+    public async Task<IActionResult> GetRooms()
+    {
+        var rooms = await _roomService.GetRoomsAsync();
+        return Ok(rooms);
+    }
+
+    [Authorize]
+    [HttpGet("GetRoomById/{roomId}")]
+    public async Task<IActionResult> GetRoomById(int roomId)
+    {
+        try
         {
-            _roomService = roomService;
+            var room = await _roomService.GetRoomByIdAsync(roomId);
+            return Ok(room);
         }
-
-        [HttpGet("GetAllRooms")]
-        public async Task<IActionResult> GetRooms()
+        catch (KeyNotFoundException ex)
         {
-            var rooms = await _roomService.GetRoomsAsync();
-            return Ok(rooms);
+            return NotFound(ex.Message);
         }
+    }
 
-        [HttpGet("GetRoomById/{roomId}")]
-        public async Task<IActionResult> GetRoomById(int roomId)
+    // 🔐 Csak Admin
+    [Authorize(Roles = "Admin")]
+    [HttpPost("CreateRoom")]
+    public async Task<IActionResult> CreateRoom([FromBody] RoomCreateDto createDto)
+    {
+        var room = await _roomService.CreateRoomAsync(createDto);
+        return CreatedAtAction(nameof(GetRoomById), new { roomId = room.Id }, room);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("UpdateRoom/{roomId}")]
+    public async Task<IActionResult> UpdateRoom(int roomId, [FromBody] RoomUpdateDto updateDto)
+    {
+        try
         {
-            try
-            {
-                var room = await _roomService.GetRoomByIdAsync(roomId);
-                return Ok(room);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var room = await _roomService.UpdateRoomAsync(roomId, updateDto);
+            return Ok(room);
         }
-
-        [HttpPost("CreateRoom")]
-        public async Task<IActionResult> CreateRoom([FromBody] RoomCreateDto createDto)
+        catch (KeyNotFoundException ex)
         {
-            var room = await _roomService.CreateRoomAsync(createDto);
-            return CreatedAtAction(nameof(GetRoomById), new { roomId = room.Id }, room);
+            return NotFound(ex.Message);
         }
+    }
 
-        [HttpPut("UpdateRoom/{roomId}")]
-        public async Task<IActionResult> UpdateRoom(int roomId, [FromBody] RoomUpdateDto updateDto)
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("DeleteRoom/{roomId}")]
+    public async Task<IActionResult> DeleteRoom(int roomId)
+    {
+        try
         {
-            try
-            {
-                var room = await _roomService.UpdateRoomAsync(roomId, updateDto);
-                return Ok(room);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            await _roomService.DeleteRoomAsync(roomId);
+            return NoContent();
         }
-
-        [HttpDelete("DeleteRoom/{roomId}")]
-        public async Task<IActionResult> DeleteRoom(int roomId)
+        catch (KeyNotFoundException ex)
         {
-            try
-            {
-                await _roomService.DeleteRoomAsync(roomId);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return NotFound(ex.Message);
         }
-
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

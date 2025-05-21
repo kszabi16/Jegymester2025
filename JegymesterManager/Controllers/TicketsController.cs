@@ -26,6 +26,8 @@ namespace JegymesterManager.Controllers
 
         }
 
+        [Authorize(Roles = "Admin,Cashier")]
+        
         [HttpGet("GetAllTickets")]
         public async Task<ActionResult<IEnumerable<TicketDto>>> GetAllTickets()
         {
@@ -59,7 +61,7 @@ namespace JegymesterManager.Controllers
             return Ok(updatedTicket);
         }
 
-        [HttpDelete("DeleteTicket{id}")]
+        [HttpDelete("DeleteTicket/{id}")]
         [Authorize(Roles = "Cashier,Admin")]
         public async Task<IActionResult> DeleteTicket(int id)
         {

@@ -35,6 +35,7 @@ namespace JegymesterManager.Controllers
         }
         [HttpPost("RegisterWithRoles")]
         [Authorize(Roles = "Admin")]
+        
         public async Task<IActionResult> RegisterWithRolesAsync(RegisterWithRolesDto userDto)
         {
             var result = await _userService.RegisterWithRolesAsync(userDto);

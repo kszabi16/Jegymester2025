@@ -6,10 +6,7 @@ using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Net.Sockets;
-using System.Security.Claims;
 
 namespace Jegymester.Services
 {
@@ -17,11 +14,16 @@ namespace Jegymester.Services
     {
         Task<BookingDto> UserCreateBookingAsync(int userId, CreateUserBookingDto dto);
         Task<BookingDto> GuestCreateBookingAsync(CreateGuestBookingDto dto);
+
+        // ÚJ: Admin számára összes foglalás lekérdezése
+        Task<List<BookingDto>> GetAllBookingsAsync();
     }
+
     public class BookingService : IBookingService
     {
         private readonly JegymesterDbContext _context;
         private readonly IMapper _mapper;
+
         public BookingService(JegymesterDbContext context, IMapper mapper)
         {
             _context = context;
@@ -42,13 +44,10 @@ namespace Jegymester.Services
             foreach (var seatId in dto.SeatId)
             {
                 var seat = await _context.Seats.FindAsync(seatId);
-
                 if (seat == null)
                     throw new Exception($"Seat doesn't exist: {seatId}");
-
                 if (seat.RoomId != screening.RoomId)
                     throw new InvalidOperationException($"Seat {seatId} is not in the same room as the screening.");
-
                 if (seat.IsOccupied)
                     throw new InvalidOperationException($"Seat {seatId} is already occupied.");
 
@@ -80,14 +79,15 @@ namespace Jegymester.Services
 
             return _mapper.Map<BookingDto>(booking);
         }
+
         public async Task<BookingDto> GuestCreateBookingAsync(CreateGuestBookingDto dto)
         {
             if (string.IsNullOrEmpty(dto.Email) && string.IsNullOrEmpty(dto.PhoneNumber))
                 throw new Exception("Email or Phone is required.");
 
             var screening = await _context.Screenings
-           .Include(s => s.Movie)
-           .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
+                .Include(s => s.Movie)
+                .FirstOrDefaultAsync(s => s.Id == dto.ScreeningId);
 
             if (screening == null || screening.Deleted)
                 throw new InvalidOperationException("Screening not found.");
@@ -101,14 +101,10 @@ namespace Jegymester.Services
             foreach (var seatId in dto.SeatIds)
             {
                 var seat = await _context.Seats.FindAsync(seatId);
-                
-
                 if (seat == null)
                     throw new Exception($"Seat doesn't exist: {seatId}");
-
                 if (seat.RoomId != screening.RoomId)
                     throw new InvalidOperationException($"Seat {seatId} is not in the same room as the screening.");
-
                 if (seat.IsOccupied)
                     throw new InvalidOperationException($"Seat {seatId} is already occupied.");
 
@@ -121,7 +117,7 @@ namespace Jegymester.Services
                     ScreeningId = dto.ScreeningId,
                     SeatId = seatId,
                     PurchaseDate = DateTime.UtcNow,
-                    ScreeningTime = screening.StartTime,
+                    ScreeningTime = screening.StartTime
                 });
             }
 
@@ -131,7 +127,6 @@ namespace Jegymester.Services
                 Quantity = tickets.Count,
                 Tickets = tickets,
                 TotalPrice = tickets.Sum(t => t.Price)
-
             };
 
             Console.WriteLine($"Guest purchase - Email: {dto.Email}, Phone: {dto.PhoneNumber}");
@@ -142,5 +137,30 @@ namespace Jegymester.Services
             return _mapper.Map<BookingDto>(booking);
         }
 
+        // ✅ ÚJ METÓDUS: Admin számára összes foglalás
+        public async Task<List<BookingDto>> GetAllBookingsAsync()
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.Tickets)
+                .ToListAsync();
+
+            return bookings.Select(b => new BookingDto
+            {
+                Id = b.Id,
+                BuyDate = b.BuyDate,
+                Quantity = b.Quantity,
+                TotalPrice = b.TotalPrice,
+                UserId = (int)b.UserId,
+                Tickets = b.Tickets.Select(t => new TicketDto
+                {
+                    Id = t.Id,
+                    ScreeningId = t.ScreeningId,
+                    ScreeningTime = t.ScreeningTime,
+                    TicketType = t.TicketType,
+                    Price = t.Price,
+                    PurchaseDate = t.PurchaseDate
+                }).ToList()
+            }).ToList();
+        }
     }
 }
